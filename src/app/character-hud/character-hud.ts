@@ -7,7 +7,7 @@ import { FormsModule } from '@angular/forms';
   selector: 'app-character-hud',
   standalone: true,
   imports: [CommonModule, FormsModule],
-  templateUrl: './character-hud.ts.html',
+  templateUrl: './character-hud.html',
   styleUrl: './character-hud.css'
 })
 export class CharacterHud {
