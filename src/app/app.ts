@@ -10,6 +10,6 @@ import { QuestForm } from './quest-form/quest-form';
   templateUrl: './app.html',
   styleUrl: './app.css'
 })
-export class AppComponent {
+export class App {
   title = 'questline';
 }
