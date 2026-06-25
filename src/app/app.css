@@ -1,0 +1,49 @@
+:host {
+    display: block;
+    background-color: #121214;
+    min-height: 100vh;
+    color: #f4f4f9;
+    font-family: 'Courier New', Courier, monospace;
+    padding-bottom: 40px;
+  }
+  
+  .game-header {
+    text-align: center;
+    padding: 20px 10px;
+    background: #1a1a24;
+    border-bottom: 4px solid #ffb703;
+  }
+  
+  .game-header h1 {
+    margin: 0;
+    letter-spacing: 2px;
+    color: #ffb703;
+  }
+  
+  .game-header p {
+    margin: 5px 0 0 0;
+    color: #888;
+    font-size: 0.9rem;
+  }
+  
+  .game-container {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 20px;
+  }
+  
+  .hud-wrapper {
+    margin-bottom: 25px;
+  }
+  
+  .content-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 25px;
+  }
+  
+  @media(max-width: 768px) {
+    .content-grid {
+      grid-template-columns: 1fr;
+    }
+  }
