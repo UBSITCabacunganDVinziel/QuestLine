@@ -10,7 +10,7 @@ import { FormsModule } from '@angular/forms';
   templateUrl: './character-hud.ts.html',
   styleUrl: './character-hud.css'
 })
-export class CharacterHudComponent {
+export class CharacterHud {
   public questService = inject(QuestService);
   public isEditingName = false;
   public editNameValue = '';
