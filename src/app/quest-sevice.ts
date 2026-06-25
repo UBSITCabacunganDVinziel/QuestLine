@@ -1,5 +1,6 @@
 import { Injectable, signal, computed } from '@angular/core';
-import { Quest, CharacterStats } from '../models/quest.model';
+import { Quest } from '../quest.model';
+import { CharacterStats } from '../quest.model';
 
 @Injectable({
   providedIn: 'root'
