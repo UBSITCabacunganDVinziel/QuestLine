@@ -1,1 +1,25 @@
-<p>quest-form works!</p>
+<div class="form-container">
+    <h3>📜 Post an Adventure Quest</h3>
+    <form (ngSubmit)="onSubmit()" #questForm="ngForm">
+      <div class="input-group">
+        <label>Quest Objective Title</label>
+        <input type="text" [(ngModel)]="title" name="title" required placeholder="e.g., Clear the Sink Dungeon" class="pixel-input">
+      </div>
+  
+      <div class="input-group">
+        <label>Description / Constraints</label>
+        <textarea [(ngModel)]="description" name="description" required placeholder="Describe task notes..." class="pixel-input"></textarea>
+      </div>
+  
+      <div class="input-group">
+        <label>Tier Difficulty</label>
+        <select [(ngModel)]="difficulty" name="difficulty" class="pixel-input">
+          <option value="Easy">Easy (Daily Tasks / Chores)</option>
+          <option value="Medium">Medium (Studies / Workouts)</option>
+          <option value="Hard">Hard (Exams / Large Projects)</option>
+        </select>
+      </div>
+  
+      <button type="submit" [disabled]="!questForm.form.valid" class="post-btn">POST TO BOARD</button>
+    </form>
+  </div>
