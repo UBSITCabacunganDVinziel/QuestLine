@@ -1,9 +1,13 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { QuestService } from '../quest-sevice';
 
 @Component({
   selector: 'app-quest-form',
-  imports: [],
+  standalone: true,
+  imports: [CommonModule, FormsModule],
   templateUrl: './quest-form.html',
-  styleUrl: './quest-form.css',
+  styleUrl: './quest-form.css'
 })
 export class QuestForm {}
