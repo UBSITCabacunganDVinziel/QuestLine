@@ -1,1 +1,31 @@
-<p>character-hud works!</p>
+<div class="hud-container">
+    <div class="avatar-frame">
+      <img [src]="'https://api.dicebear.com/9.x/pixel-art/svg?seed=' + questService.stats().avatarSeed" alt="Avatar">
+    </div>
+    
+    <div class="stats-frame">
+      <div class="name-row">
+        @if (!isEditingName) {
+          <h2>{{ questService.stats().name }}</h2>
+          <button class="pixel-btn edit-btn" (click)="startEditing()">✏️</button>
+        } @else {
+          <input type="text" [(ngModel)]="editNameValue" class="pixel-input" maxlength="15">
+          <button class="pixel-btn save-btn" (click)="saveName()">💾</button>
+        }
+      </div>
+  
+      <div class="level-badge">LEVEL {{ questService.stats().level }}</div>
+      
+      <div class="stat-row">
+        <span>Gold:</span>
+        <span class="gold-text">🪙 {{ questService.stats().gold }}g</span>
+      </div>
+  
+      <div class="xp-container">
+        <div class="xp-label">XP: {{ questService.stats().currentXp }} / {{ questService.stats().nextLevelXp }}</div>
+        <div class="xp-bar-bg">
+          <div class="xp-bar-fill" [style.width.%]="getXpPercentage()"></div>
+        </div>
+      </div>
+    </div>
+  </div>
