@@ -1,9 +1,19 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { QuestService } from '../quest-sevice';
+import { Quest } from '../../quest.model';
 
 @Component({
   selector: 'app-quest-list',
-  imports: [],
+  standalone: true,
+  imports: [CommonModule],
   templateUrl: './quest-list.html',
-  styleUrl: './quest-list.css',
+  styleUrl: './quest-list.css'
 })
-export class QuestList {}
+export class QuestListComponent {
+  public questService = inject(QuestService);
+
+  trackById(index: number, item: Quest) {
+    return item.id;
+  }
+}
