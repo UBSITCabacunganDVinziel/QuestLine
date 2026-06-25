@@ -1,1 +1,30 @@
-<p>quest-list works!</p>
+<div class="list-container">
+    <h3>⚔️ Active Quest Board</h3>
+  
+    @if (questService.quests().length === 0) {
+      <p class="empty-msg">The board is clear. Great job, Hero!</p>
+    }
+  
+    @for (quest of questService.quests(); track quest.id) {
+      <div class="quest-card" [class.completed]="quest.isCompleted">
+        <div class="card-details">
+          <div class="title-row">
+            <h4>{{ quest.title }}</h4>
+            <span class="badge" [class]="quest.difficulty.toLowerCase()">{{ quest.difficulty }}</span>
+          </div>
+          <p>{{ quest.description }}</p>
+          <div class="rewards-row">
+            <span>XP: +{{ quest.xpReward }}</span>
+            <span>Gold: +{{ quest.goldReward }}g</span>
+          </div>
+        </div>
+        
+        <div class="card-actions">
+          @if (!quest.isCompleted) {
+            <button class="action-btn complete-btn" (click)="questService.completeQuest(quest.id)">CLAIM</button>
+          }
+          <button class="action-btn delete-btn" (click)="questService.deleteQuest(quest.id)">❌</button>
+        </div>
+      </div>
+    }
+  </div>
