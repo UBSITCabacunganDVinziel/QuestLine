@@ -10,7 +10,7 @@ import { Quest } from '../../quest.model';
   templateUrl: './quest-list.html',
   styleUrl: './quest-list.css'
 })
-export class QuestListComponent {
+export class QuestList {
   public questService = inject(QuestService);
 
   trackById(index: number, item: Quest) {
