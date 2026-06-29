@@ -1,30 +1,34 @@
 <div class="list-container">
-    <h3>⚔️ Active Quest Board</h3>
-  
-    @if (questService.quests().length === 0) {
-      <p class="empty-msg">The board is clear. Great job, Hero!</p>
-    }
-  
-    @for (quest of questService.quests(); track quest.id) {
-      <div class="quest-card" [class.completed]="quest.isCompleted">
-        <div class="card-details">
-          <div class="title-row">
-            <h4>{{ quest.title }}</h4>
-            <span class="badge" [class]="quest.difficulty.toLowerCase()">{{ quest.difficulty }}</span>
-          </div>
-          <p>{{ quest.description }}</p>
-          <div class="rewards-row">
-            <span>XP: +{{ quest.xpReward }}</span>
-            <span>Gold: +{{ quest.goldReward }}g</span>
-          </div>
+  <h3>⚔️ Active Quest Board</h3>
+
+  @if (questService.quests().length === 0) {
+    <p class="empty-msg">The board is clear. Great job, Hero!</p>
+  }
+
+  @for (quest of questService.quests(); track quest.id) {
+    <div class="quest-card" [class.completed]="quest.isCompleted">
+      <div class="card-details">
+        <div class="title-row">
+          <h4>{{ getChoreMetadata(quest.choreId)?.name || 'Unknown Quest' }}</h4>
+          <span class="badge" [class]="getChoreMetadata(quest.choreId)?.difficulty?.toLowerCase() || 'easy'">
+            {{ getChoreMetadata(quest.choreId)?.difficulty }}
+          </span>
         </div>
         
-        <div class="card-actions">
-          @if (!quest.isCompleted) {
-            <button class="action-btn complete-btn" (click)="questService.completeQuest(quest.id)">CLAIM</button>
-          }
-          <button class="action-btn delete-btn" (click)="questService.deleteQuest(quest.id)">❌</button>
+        <p class="category-text">📂 Category: {{ getChoreMetadata(quest.choreId)?.category }}</p>
+        
+        <div class="rewards-row">
+          <span>XP: +{{ getChoreMetadata(quest.choreId)?.difficulty === 'EASY' ? 10 : getChoreMetadata(quest.choreId)?.difficulty === 'MEDIUM' ? 25 : getChoreMetadata(quest.choreId)?.difficulty === 'HARD' ? 50 : 100 }}</span>
+          <span>Gold: +{{ getChoreMetadata(quest.choreId)?.difficulty === 'EASY' ? 5 : getChoreMetadata(quest.choreId)?.difficulty === 'MEDIUM' ? 15 : getChoreMetadata(quest.choreId)?.difficulty === 'HARD' ? 30 : 75 }}g</span>
         </div>
       </div>
-    }
-  </div>
+      
+      <div class="card-actions">
+        @if (!quest.isCompleted) {
+          <button class="action-btn complete-btn" (click)="questService.completeQuest(quest.id)">CLAIM</button>
+        }
+        <button class="action-btn delete-btn" (click)="questService.deleteQuest(quest.id)">❌</button>
+      </div>
+    </div>
+  }
+</div>
