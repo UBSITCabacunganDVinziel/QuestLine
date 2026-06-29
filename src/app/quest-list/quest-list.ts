@@ -1,8 +1,8 @@
 import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { QuestService } from '../quest-sevice';
-import { Quest, CHORE_LIST } from '../quest.model';
-
+import { QuestPayload } from '../../quest.model';
+import { CHORE_LIST } from '../../quest.model';
 @Component({
   selector: 'app-quest-list',
   standalone: true,
@@ -12,12 +12,12 @@ import { Quest, CHORE_LIST } from '../quest.model';
 })
 export class QuestList {
   public questService = inject(QuestService);
-  
+
   getChoreMetadata(choreId: string) {
-    return CHORE_LIST.find(c => c.id === choreId);
+    return CHORE_LIST.find((c: any) => c.id === choreId);
   }
 
-  trackById(index: number, item: Quest) {
+  trackById(index: number, item: QuestPayload) {
     return item.id;
   }
 }

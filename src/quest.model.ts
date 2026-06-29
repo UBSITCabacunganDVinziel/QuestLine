@@ -8,7 +8,18 @@ export interface ChoreObjective {
 }
 
 export interface QuestPayload {
+  id: string;
   choreId: string;
+  isCompleted: boolean;
+}
+
+export interface CharacterStats {
+  name: string;
+  level: number;
+  currentXp: number;
+  nextLevelXp: number;
+  gold: number;
+  avatarSeed: string;
 }
  
 export const REWARD_TIERS: Record<QuestDifficulty, {

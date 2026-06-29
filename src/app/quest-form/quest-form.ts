@@ -2,6 +2,8 @@ import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { QuestService } from '../quest-sevice';
+import { CHORE_LIST, REWARD_TIERS } from '../../quest.model';
+
 
 @Component({
   selector: 'app-quest-form',
@@ -11,26 +13,23 @@ import { QuestService } from '../quest-sevice';
   styleUrl: './quest-form.css'
 })
 export class QuestForm {
-  private questService = inject(QuestService);
+  public questService = inject(QuestService);
+  public selectedChoreId = '';
+  public rewardTiers = REWARD_TIERS;
 
-  // Form fields bound via ngModel
-  public title = '';
-  public description = '';
-  public difficulty: 'Easy' | 'Medium' | 'Hard' = 'Easy';
+  getChoresByCategory(category: 'Daily Maintenance' | 'Mental & Physical' | 'Deep Focus & Admin' | 'Epic Feats') {
+    return CHORE_LIST.filter((c:any) => c.category === category);
+  }
+
+  getSelectedChoreMetadata() {
+    return CHORE_LIST.find((c:any) => c.id === this.selectedChoreId);
+  }
 
   onSubmit() {
-    if (this.title.trim() && this.description.trim()) {
-      // Send data to the state manager
-      this.questService.addQuest(
-        this.title.trim(),
-        this.description.trim(),
-        this.difficulty
-      );
+    if (!this.selectedChoreId) return;
 
-      // Reset form controls for the next quest entry
-      this.title = '';
-      this.description = '';
-      this.difficulty = 'Easy';
-    }
+    this.questService.addQuest(this.selectedChoreId);
+
+    this.selectedChoreId = '';
   }
 }

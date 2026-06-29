@@ -1,25 +1,44 @@
 <div class="form-container">
-    <h3>📜 Post an Adventure Quest</h3>
-    <form (ngSubmit)="onSubmit()" #questForm="ngForm">
-      <div class="input-group">
-        <label>Quest Objective Title</label>
-        <input type="text" [(ngModel)]="title" name="title" required placeholder="e.g., Clear the Sink Dungeon" class="pixel-input">
-      </div>
+  <h3>📜 Post an Adventure Quest</h3>
+  <form (ngSubmit)="onSubmit()" #questForm="ngForm">
+    
+    <div class="input-group">
+      <label for="choreSelect">Select Quest Objective</label>
+      <select id="choreSelect" [(ngModel)]="selectedChoreId" name="selectedChoreId" required class="pixel-input">
+        <option value="" disabled selected>-- Select your next task --</option>
+        
+        <optgroup label="🧹 Daily Maintenance">
+          <option *ngFor="let chore of getChoresByCategory('Daily Maintenance')" [value]="chore.id">
+            {{ chore.name }}
+          </option>
+        </optgroup>
   
-      <div class="input-group">
-        <label>Description / Constraints</label>
-        <textarea [(ngModel)]="description" name="description" required placeholder="Describe task notes..." class="pixel-input"></textarea>
-      </div>
+        <optgroup label="🌱 Mental & Physical Health">
+          <option *ngFor="let chore of getChoresByCategory('Mental & Physical')" [value]="chore.id">
+            {{ chore.name }}
+          </option>
+        </optgroup>
   
-      <div class="input-group">
-        <label>Tier Difficulty</label>
-        <select [(ngModel)]="difficulty" name="difficulty" class="pixel-input">
-          <option value="Easy">Easy (Daily Tasks / Chores)</option>
-          <option value="Medium">Medium (Studies / Workouts)</option>
-          <option value="Hard">Hard (Exams / Large Projects)</option>
-        </select>
-      </div>
+        <optgroup label="🧠 Deep Focus & Admin">
+          <option *ngFor="let chore of getChoresByCategory('Deep Focus & Admin')" [value]="chore.id">
+            {{ chore.name }}
+          </option>
+        </optgroup>
   
-      <button type="submit" [disabled]="!questForm.form.valid" class="post-btn">POST TO BOARD</button>
-    </form>
-  </div>
+        <optgroup label="⚔️ Epic Feats">
+          <option *ngFor="let chore of getChoresByCategory('Epic Feats')" [value]="chore.id">
+            {{ chore.name }}
+          </option>
+        </optgroup>
+      </select>
+    </div>
+
+    <div *ngIf="selectedChoreId && getSelectedChoreMetadata() as chore" class="rewards-preview" style="margin: 15px 0; padding: 10px; border: 2px dashed #ffb400; background: rgba(0,0,0,0.2); border-radius: 4px;">
+      <p style="margin: 5px 0; color: #ffb400; font-weight: bold;">⚡ Rank Tier: {{ chore.difficulty }}</p>
+      <p style="margin: 5px 0;">⭐ XP Reward: +{{ rewardTiers[chore.difficulty].xp }}</p>
+      <p style="margin: 5px 0;">🪙 Gold Reward: +{{ rewardTiers[chore.difficulty].gold }}g</p>
+    </div>
+
+    <button type="submit" [disabled]="!questForm.form.valid" class="post-btn">POST TO BOARD</button>
+  </form>
+</div>

@@ -1,17 +1,19 @@
 import { Injectable, signal, computed } from '@angular/core';
-import { Quest, CharacterStats, CHORE_LIST, REWARD_TIERS } from './quest.model';
+import { QuestPayload, CharacterStats } from '../quest.model';
+import { CHORE_LIST } from '../quest.model';
+import { REWARD_TIERS } from '../quest.model';
 
 @Injectable({
   providedIn: 'root'
 })
 export class QuestService {
-  private questsSignal = signal<Quest[]>(this.loadQuests());
+  private questsSignal = signal<QuestPayload[]>(this.loadQuests());
   private statsSignal = signal<CharacterStats>(this.loadStats());
 
   public quests = computed(() => this.questsSignal());
   public stats = computed(() => this.statsSignal());
 
-  private loadQuests(): Quest[] {
+  private loadQuests(): QuestPayload[] {
     return JSON.parse(localStorage.getItem('questline_quests') || '[]');
   }
 
@@ -32,10 +34,10 @@ export class QuestService {
   }
 
   addQuest(choreId: string) {
-    const choreExists = CHORE_LIST.some(c => c.id === choreId);
+    const choreExists = CHORE_LIST.some((c: any) => c.id === choreId);
     if (!choreExists) return;
 
-    const newQuest: Quest = {
+    const newQuest: QuestPayload = {
       id: crypto.randomUUID(),
       choreId: choreId, 
       isCompleted: false
@@ -53,7 +55,7 @@ export class QuestService {
   completeQuest(id: string) {
     this.questsSignal.update(quests => quests.map(q => {
       if (q.id === id && !q.isCompleted) {
-        const choreMetadata = CHORE_LIST.find(c => c.id === q.choreId);
+        const choreMetadata = CHORE_LIST.find((c: any) => c.id === q.choreId);
         
         if (choreMetadata) {
           const rewards = REWARD_TIERS[choreMetadata.difficulty];
