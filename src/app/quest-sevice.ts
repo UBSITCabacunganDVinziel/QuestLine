@@ -1,16 +1,13 @@
 import { Injectable, signal, computed } from '@angular/core';
-import { Quest } from '../quest.model';
-import { CharacterStats } from '../quest.model';
+import { Quest, CharacterStats, CHORE_LIST, REWARD_TIERS } from './quest.model';
 
 @Injectable({
   providedIn: 'root'
 })
 export class QuestService {
-  // Signals for state management
   private questsSignal = signal<Quest[]>(this.loadQuests());
   private statsSignal = signal<CharacterStats>(this.loadStats());
 
-  // Public read-only reactive views
   public quests = computed(() => this.questsSignal());
   public stats = computed(() => this.statsSignal());
 
@@ -34,20 +31,13 @@ export class QuestService {
     localStorage.setItem('questline_stats', JSON.stringify(this.statsSignal()));
   }
 
-  addQuest(title: string, description: string, difficulty: 'Easy' | 'Medium' | 'Hard') {
-    let xp = 20;
-    let gold = 10;
-
-    if (difficulty === 'Medium') { xp = 50; gold = 25; }
-    if (difficulty === 'Hard') { xp = 100; gold = 60; }
+  addQuest(choreId: string) {
+    const choreExists = CHORE_LIST.some(c => c.id === choreId);
+    if (!choreExists) return;
 
     const newQuest: Quest = {
       id: crypto.randomUUID(),
-      title,
-      description,
-      difficulty,
-      xpReward: xp,
-      goldReward: gold,
+      choreId: choreId, 
       isCompleted: false
     };
 
@@ -63,7 +53,13 @@ export class QuestService {
   completeQuest(id: string) {
     this.questsSignal.update(quests => quests.map(q => {
       if (q.id === id && !q.isCompleted) {
-        this.awardRewards(q.xpReward, q.goldReward);
+        const choreMetadata = CHORE_LIST.find(c => c.id === q.choreId);
+        
+        if (choreMetadata) {
+          const rewards = REWARD_TIERS[choreMetadata.difficulty];
+          this.awardRewards(rewards.xp, rewards.gold);
+        }
+        
         return { ...q, isCompleted: true };
       }
       return q;
