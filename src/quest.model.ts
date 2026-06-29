@@ -20,6 +20,7 @@ export interface CharacterStats {
   nextLevelXp: number;
   gold: number;
   avatarSeed: string;
+  completedChoresToday: Record<string, string>;
 }
  
 export const REWARD_TIERS: Record<QuestDifficulty, {
