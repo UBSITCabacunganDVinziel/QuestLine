@@ -1,7 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { QuestService } from '../quest-sevice';
-import { Quest } from '../../quest.model';
+import { Quest, CHORE_LIST } from '../quest.model';
 
 @Component({
   selector: 'app-quest-list',
@@ -12,6 +12,10 @@ import { Quest } from '../../quest.model';
 })
 export class QuestList {
   public questService = inject(QuestService);
+  
+  getChoreMetadata(choreId: string) {
+    return CHORE_LIST.find(c => c.id === choreId);
+  }
 
   trackById(index: number, item: Quest) {
     return item.id;
