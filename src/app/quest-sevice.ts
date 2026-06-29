@@ -52,14 +52,34 @@ export class QuestService {
     this.saveState();
   }
 
+  isChoreLocked(choreId: string): boolean {
+    const todayStr = new Date().toISOString().split('T')[0];
+    const lastCompletedDate = this.stats().completedChoresToday?.[choreId];
+    return lastCompletedDate === todayStr;
+  }
+
   completeQuest(id: string) {
     this.questsSignal.update(quests => quests.map(q => {
       if (q.id === id && !q.isCompleted) {
         const choreMetadata = CHORE_LIST.find((c: any) => c.id === q.choreId);
         
         if (choreMetadata) {
+          if (this.isChoreLocked(q.choreId)) {
+            console.warn("Cheat Attempt: Quest cooldown active!");
+            return q; 
+          }
+  
           const rewards = REWARD_TIERS[choreMetadata.difficulty];
           this.awardRewards(rewards.xp, rewards.gold);
+  
+          const todayStr = new Date().toISOString().split('T')[0];
+          this.statsSignal.update(current => ({
+            ...current,
+            completedChoresToday: {
+              ...current.completedChoresToday,
+              [q.choreId]: todayStr
+            }
+          }));
         }
         
         return { ...q, isCompleted: true };
