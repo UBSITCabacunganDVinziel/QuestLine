@@ -2,7 +2,7 @@ import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { QuestService } from '../quest-sevice';
-import { CHORE_LIST, REWARD_TIERS } from '../../quest.model';
+import { CHORE_LIST, ChoreObjective, REWARD_TIERS } from '../../quest.model';
 
 @Component({
   selector: 'app-quest-form',
