@@ -1,2 +1,21 @@
-<app-quest-form />
-<app-quest-list />
+
+@if (questService.isAuthenticated()) {
+  
+    <div style="max-width: 1200px; margin: 0 auto; text-align: right; padding: 10px;">
+      <button (click)="questService.logoutPlayer()" style="background: #f38ba8; color: #111; border: none; padding: 6px 12px; font-family: monospace; font-weight: bold; border-radius: 4px; cursor: pointer;">
+        LOGOUT PROFILE
+      </button>
+    </div>
+  
+    <app-quest-form></app-quest-form>
+    <app-quest-list></app-quest-list>
+  
+  } @else {
+    
+    @if (currentAuthSubPage() === 'signin') {
+      <app-sign-in (onSwitchToSignUp)="navigateToPage('signup')"></app-sign-in>
+    } @else {
+      <app-sign-up (onSwitchToSignIn)="navigateToPage('signin')"></app-sign-up>
+    }
+  
+  }
