@@ -1,15 +1,13 @@
-import { Component } from '@angular/core';
-import { CharacterHud } from './character-hud/character-hud';
-import { QuestList } from './quest-list/quest-list';
+import { Component, signal } from '@angular/core';
 import { QuestForm } from './quest-form/quest-form';
+import { QuestList } from './quest-list/quest-list';
 
 @Component({
   selector: 'app-root',
-  standalone: true,
-  imports: [CharacterHud, QuestForm, QuestList],
+  imports: [QuestForm, QuestList],
   templateUrl: './app.html',
   styleUrl: './app.css'
 })
 export class App {
-  title = 'questline';
+  protected readonly title = signal('questline-app');
 }
