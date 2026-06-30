@@ -6,26 +6,34 @@
   }
 
   @for (quest of questService.quests(); track quest.id) {
-    <div class="quest-card" [class.completed]="quest.isCompleted">
+    @let chore = getChoreMetadata(quest.choreId);
+    @let isCooldownActive = questService.isChoreLocked(quest.choreId);
+
+    <div class="quest-card" [class.completed]="quest.isCompleted" [class.locked]="isCooldownActive && !quest.isCompleted">
       <div class="card-details">
         <div class="title-row">
-          <h4>{{ getChoreMetadata(quest.choreId)?.name || 'Unknown Quest' }}</h4>
-          <span class="badge" [class]="getChoreMetadata(quest.choreId)?.difficulty?.toLowerCase() || 'easy'">
-            {{ getChoreMetadata(quest.choreId)?.difficulty }}
+          <h4>{{ chore.name }}</h4>
+          <span class="badge" [class]="chore.difficulty.toLowerCase()">
+            {{ chore.difficulty }}
           </span>
         </div>
         
-        <p class="category-text">📂 Category: {{ getChoreMetadata(quest.choreId)?.category }}</p>
+        <p class="category-text">📂 Category: {{ chore.category }}</p>
         
         <div class="rewards-row">
-          <span>XP: +{{ getChoreMetadata(quest.choreId)?.difficulty === 'EASY' ? 10 : getChoreMetadata(quest.choreId)?.difficulty === 'MEDIUM' ? 25 : getChoreMetadata(quest.choreId)?.difficulty === 'HARD' ? 50 : 100 }}</span>
-          <span>Gold: +{{ getChoreMetadata(quest.choreId)?.difficulty === 'EASY' ? 5 : getChoreMetadata(quest.choreId)?.difficulty === 'MEDIUM' ? 15 : getChoreMetadata(quest.choreId)?.difficulty === 'HARD' ? 30 : 75 }}g</span>
+          <span>XP: +{{ chore.difficulty === 'EASY' ? 10 : chore.difficulty === 'MEDIUM' ? 25 : chore.difficulty === 'HARD' ? 50 : 100 }}</span>
+          <span>Gold: +{{ chore.difficulty === 'EASY' ? 5 : chore.difficulty === 'MEDIUM' ? 15 : chore.difficulty === 'HARD' ? 30 : 75 }}g</span>
         </div>
       </div>
       
       <div class="card-actions">
         @if (!quest.isCompleted) {
-          <button class="action-btn complete-btn" (click)="questService.completeQuest(quest.id)">CLAIM</button>
+          <button 
+            class="action-btn complete-btn" 
+            [disabled]="isCooldownActive"
+            (click)="questService.completeQuest(quest.id)">
+            {{ isCooldownActive ? '⏳ COOLDOWN' : 'CLAIM' }}
+          </button>
         }
         <button class="action-btn delete-btn" (click)="questService.deleteQuest(quest.id)">❌</button>
       </div>
