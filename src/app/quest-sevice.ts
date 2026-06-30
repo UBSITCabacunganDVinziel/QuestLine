@@ -1,55 +1,77 @@
-import { Injectable, signal, computed } from '@angular/core';
+import { Injectable, signal, computed, inject } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
 import { QuestPayload, CharacterStats } from '../quest.model';
 import { CHORE_LIST } from '../quest.model';
-import { REWARD_TIERS } from '../quest.model';
 
 @Injectable({
   providedIn: 'root'
 })
 export class QuestService {
-  private questsSignal = signal<QuestPayload[]>(this.loadQuests());
-  private statsSignal = signal<CharacterStats>(this.loadStats());
+  private http = inject(HttpClient);
+  private apiUrl = 'http://localhost:3000/api';
+
+  
+  private questsSignal = signal<QuestPayload[]>([]);
+  private statsSignal = signal<CharacterStats>({
+    name: 'Player 1',
+    level: 1,
+    currentXp: 0,
+    nextLevelXp: 100,
+    gold: 0,
+    phpBalance: 0.00,
+    avatarSeed: 'QuestLineHero',
+    completedChoresToday: {}
+  });
+
+ 
+  public gameAlertMessage = signal<string>('');
 
   public quests = computed(() => this.questsSignal());
   public stats = computed(() => this.statsSignal());
 
-  private loadQuests(): QuestPayload[] {
-    return JSON.parse(localStorage.getItem('questline_quests') || '[]');
+  constructor() {
+    this.fetchInitialData();
   }
 
-  private loadStats(): CharacterStats {
-    return JSON.parse(localStorage.getItem('questline_stats') || JSON.stringify({
-      name: 'Player 1',
-      level: 1,
-      currentXp: 0,
-      nextLevelXp: 100,
-      gold: 0,
-      avatarSeed: 'QuestLineHero'
-    }));
-  }
+  private fetchInitialData() {
+    this.http.get<QuestPayload[]>(${this.apiUrl}/quests).subscribe({
+      next: (data) => this.questsSignal.set(data),
+      error: (err) => console.error('Failed fetching active quests from MongoDB:', err)
+    });
 
-  private saveState() {
-    localStorage.setItem('questline_quests', JSON.stringify(this.questsSignal()));
-    localStorage.setItem('questline_stats', JSON.stringify(this.statsSignal()));
+    this.http.get<CharacterStats>(${this.apiUrl}/stats).subscribe({
+      next: (data) => this.statsSignal.set(data),
+      error: (err) => console.error('Failed fetching account metrics from MongoDB:', err)
+    });
   }
 
   addQuest(choreId: string) {
-    const choreExists = CHORE_LIST.some((c: any) => c.id === choreId);
+    const choreExists = CHORE_LIST.some((c) => c.id === choreId);
     if (!choreExists) return;
 
-    const newQuest: QuestPayload = {
-      id: crypto.randomUUID(),
-      choreId: choreId, 
-      isCompleted: false
-    };
+    
+    const isAlreadyActive = this.questsSignal().some(q => q.choreId === choreId && !q.isCompleted);
+    if (isAlreadyActive) {
+      this.gameAlertMessage.set("This objective assignment is already active on your dashboard.");
+      return;
+    }
 
-    this.questsSignal.update(quests => [...quests, newQuest]);
-    this.saveState();
+    this.http.post<QuestPayload>(${this.apiUrl}/quests, { choreId }).subscribe({
+      next: (newQuest) => {
+        this.questsSignal.update(quests => [...quests, newQuest]);
+        this.gameAlertMessage.set(''); 
+      },
+      error: (err) => console.error('Failed pushing quest entity to database node:', err)
+    });
   }
 
   deleteQuest(id: string) {
-    this.questsSignal.update(quests => quests.filter(q => q.id !== id));
-    this.saveState();
+    this.http.delete(${this.apiUrl}/quests/${id}).subscribe({
+      next: () => {
+        this.questsSignal.update(quests => quests.filter(q => q.id !== id));
+      },
+      error: (err) => console.error('Error deleting quest from database ledger:', err)
+    });
   }
 
   isChoreLocked(choreId: string): boolean {
@@ -59,61 +81,57 @@ export class QuestService {
   }
 
   completeQuest(id: string) {
-    this.questsSignal.update(quests => quests.map(q => {
-      if (q.id === id && !q.isCompleted) {
-        const choreMetadata = CHORE_LIST.find((c: any) => c.id === q.choreId);
-        
-        if (choreMetadata) {
-          if (this.isChoreLocked(q.choreId)) {
-            console.warn("Cheat Attempt: Quest cooldown active!");
-            return q; 
-          }
-  
-          const rewards = REWARD_TIERS[choreMetadata.difficulty];
-          this.awardRewards(rewards.xp, rewards.gold);
-  
-          const todayStr = new Date().toISOString().split('T')[0];
-          this.statsSignal.update(current => ({
-            ...current,
-            completedChoresToday: {
-              ...current.completedChoresToday,
-              [q.choreId]: todayStr
-            }
-          }));
+    this.gameAlertMessage.set('');
+    const targetedQuest = this.questsSignal().find(q => q.id === id);
+
+    if (targetedQuest && !targetedQuest.isCompleted) {
+      const choreMetadata = CHORE_LIST.find((c) => c.id === targetedQuest.choreId);
+      
+      if (choreMetadata) {
+        if (this.isChoreLocked(targetedQuest.choreId)) {
+          this.gameAlertMessage.set("Cheat Guard Active: Quest cooldown period is ticking!");
+          return; 
         }
-        
-        return { ...q, isCompleted: true };
+
+        this.http.put<{ quest: QuestPayload, stats: CharacterStats }>(
+          ${this.apiUrl}/quests/${id}/complete, 
+          { difficulty: choreMetadata.difficulty }
+        ).subscribe({
+          next: (response) => {
+            this.questsSignal.update(quests => quests.map(q => q.id === id ? response.quest : q));
+            this.statsSignal.set(response.stats);
+          },
+          error: (err) => {
+            this.gameAlertMessage.set(err.error?.error || "Security validation rejection occurred.");
+          }
+        });
       }
-      return q;
-    }));
-    this.saveState();
+    }
   }
 
-  private awardRewards(xp: number, gold: number) {
-    this.statsSignal.update(current => {
-      let updatedXp = current.currentXp + xp;
-      let updatedLevel = current.level;
-      let updatedNextLevelXp = current.nextLevelXp;
+  exchangeGoldToPhp(goldAmount: number) {
+    this.gameAlertMessage.set('');
+    if (goldAmount <= 0 || this.stats().gold < goldAmount) {
+      this.gameAlertMessage.set('Insufficient inventory balance for this exchange request.');
+      return;
+    }
 
-      while (updatedXp >= updatedNextLevelXp) {
-        updatedXp -= updatedNextLevelXp;
-        updatedLevel++;
-        updatedNextLevelXp = updatedLevel * 100;
-      }
-
-      return {
-        ...current,
-        gold: current.gold + gold,
-        currentXp: updatedXp,
-        level: updatedLevel,
-        nextLevelXp: updatedNextLevelXp,
-        avatarSeed: `Hero-${updatedLevel}-${Math.floor(Math.random() * 1000)}`
-      };
+    this.http.post<CharacterStats>(${this.apiUrl}/stats/exchange, { goldAmount }).subscribe({
+      next: (updatedStats) => {
+        this.statsSignal.set(updatedStats);
+      },
+      error: (err) => this.gameAlertMessage.set(err.error?.error || "Transaction network dropped.")
     });
   }
 
   updateCharacterName(newName: string) {
-    this.statsSignal.update(current => ({ ...current, name: newName }));
-    this.saveState();
+    if (!newName.trim()) return;
+
+    this.http.put<CharacterStats>(${this.apiUrl}/stats/name, { name: newName.trim() }).subscribe({
+      next: (savedStats) => {
+        this.statsSignal.update(current => ({ ...current, name: savedStats.name }));
+      },
+      error: (err) => console.error('Unable to finalize profile changes on cloud registry:', err)
+    });
   }
 }
