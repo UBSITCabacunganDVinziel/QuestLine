@@ -10,7 +10,7 @@ export class QuestService {
   private http = inject(HttpClient);
   private apiUrl = 'http://localhost:3000/api';
 
-  
+ 
   private questsSignal = signal<QuestPayload[]>([]);
   private statsSignal = signal<CharacterStats>({
     name: 'Player 1',
@@ -18,12 +18,12 @@ export class QuestService {
     currentXp: 0,
     nextLevelXp: 100,
     gold: 0,
-    phpBalance: 0.00,
+    phpBalance: 0,
     avatarSeed: 'QuestLineHero',
     completedChoresToday: {}
   });
 
- 
+
   public gameAlertMessage = signal<string>('');
 
   public quests = computed(() => this.questsSignal());
@@ -34,14 +34,15 @@ export class QuestService {
   }
 
   private fetchInitialData() {
-    this.http.get<QuestPayload[]>(${this.apiUrl}/quests).subscribe({
+
+    this.http.get<QuestPayload[]>(this.apiUrl + '/quests').subscribe({
       next: (data) => this.questsSignal.set(data),
-      error: (err) => console.error('Failed fetching active quests from MongoDB:', err)
+      error: (err) => console.error('Failed fetching active quests:', err)
     });
 
-    this.http.get<CharacterStats>(${this.apiUrl}/stats).subscribe({
+    this.http.get<CharacterStats>(this.apiUrl + '/stats').subscribe({
       next: (data) => this.statsSignal.set(data),
-      error: (err) => console.error('Failed fetching account metrics from MongoDB:', err)
+      error: (err) => console.error('Failed fetching character status metrics:', err)
     });
   }
 
@@ -49,28 +50,28 @@ export class QuestService {
     const choreExists = CHORE_LIST.some((c) => c.id === choreId);
     if (!choreExists) return;
 
-    
+
     const isAlreadyActive = this.questsSignal().some(q => q.choreId === choreId && !q.isCompleted);
     if (isAlreadyActive) {
-      this.gameAlertMessage.set("This objective assignment is already active on your dashboard.");
+      this.gameAlertMessage.set("This chore objective is already active on your tracking logs.");
       return;
     }
 
-    this.http.post<QuestPayload>(${this.apiUrl}/quests, { choreId }).subscribe({
+    this.http.post<QuestPayload>(this.apiUrl + '/quests', { choreId }).subscribe({
       next: (newQuest) => {
         this.questsSignal.update(quests => [...quests, newQuest]);
-        this.gameAlertMessage.set(''); 
+        this.gameAlertMessage.set('');
       },
-      error: (err) => console.error('Failed pushing quest entity to database node:', err)
+      error: (err) => console.error('Failed to post quest to MongoDB:', err)
     });
   }
 
   deleteQuest(id: string) {
-    this.http.delete(${this.apiUrl}/quests/${id}).subscribe({
+    this.http.delete(this.apiUrl + '/quests/' + id).subscribe({
       next: () => {
         this.questsSignal.update(quests => quests.filter(q => q.id !== id));
       },
-      error: (err) => console.error('Error deleting quest from database ledger:', err)
+      error: (err) => console.error('Error removing quest node:', err)
     });
   }
 
@@ -89,12 +90,12 @@ export class QuestService {
       
       if (choreMetadata) {
         if (this.isChoreLocked(targetedQuest.choreId)) {
-          this.gameAlertMessage.set("Cheat Guard Active: Quest cooldown period is ticking!");
+          this.gameAlertMessage.set("Cheat Attempt Check: Quest cooldown active!");
           return; 
         }
 
         this.http.put<{ quest: QuestPayload, stats: CharacterStats }>(
-          ${this.apiUrl}/quests/${id}/complete, 
+          this.apiUrl + '/quests/' + id + '/complete', 
           { difficulty: choreMetadata.difficulty }
         ).subscribe({
           next: (response) => {
@@ -102,7 +103,8 @@ export class QuestService {
             this.statsSignal.set(response.stats);
           },
           error: (err) => {
-            this.gameAlertMessage.set(err.error?.error || "Security validation rejection occurred.");
+            const serverErrorMsg = err.error?.error || "Security transaction deadlock block.";
+            this.gameAlertMessage.set(serverErrorMsg);
           }
         });
       }
@@ -112,26 +114,29 @@ export class QuestService {
   exchangeGoldToPhp(goldAmount: number) {
     this.gameAlertMessage.set('');
     if (goldAmount <= 0 || this.stats().gold < goldAmount) {
-      this.gameAlertMessage.set('Insufficient inventory balance for this exchange request.');
+      this.gameAlertMessage.set('Insufficient inventory gold available for this exchange transaction.');
       return;
     }
 
-    this.http.post<CharacterStats>(${this.apiUrl}/stats/exchange, { goldAmount }).subscribe({
+    this.http.post<CharacterStats>(this.apiUrl + '/stats/exchange', { goldAmount }).subscribe({
       next: (updatedStats) => {
         this.statsSignal.set(updatedStats);
       },
-      error: (err) => this.gameAlertMessage.set(err.error?.error || "Transaction network dropped.")
+      error: (err) => {
+        this.gameAlertMessage.set(err.error?.error || "Exchange network processing failure.");
+      }
     });
   }
 
   updateCharacterName(newName: string) {
     if (!newName.trim()) return;
 
-    this.http.put<CharacterStats>(${this.apiUrl}/stats/name, { name: newName.trim() }).subscribe({
+
+    this.http.put<CharacterStats>(this.apiUrl + '/api/stats/name', { name: newName.trim() }).subscribe({
       next: (savedStats) => {
         this.statsSignal.update(current => ({ ...current, name: savedStats.name }));
       },
-      error: (err) => console.error('Unable to finalize profile changes on cloud registry:', err)
+      error: (err) => console.error('Could not modify user registration name:', err)
     });
   }
 }
