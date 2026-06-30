@@ -11,24 +11,29 @@ import { CHORE_LIST, REWARD_TIERS } from '../../quest.model';
   templateUrl: './quest-form.html',
   styleUrl: './quest-form.css'
 })
+
 export class QuestForm {
   public questService = inject(QuestService);
   public selectedChoreId = '';
   public rewardTiers = REWARD_TIERS;
 
-  getChoresByCategory(category: 'Daily Maintenance' | 'Mental & Physical' | 'Deep Focus & Admin' | 'Epic Feats') {
-    return CHORE_LIST.filter((c:any) => c.category === category);
+  getChoresByCategory(category: 'Daily Maintenance' | 'Mental & Physical' | 'Deep Focus & Admin' | 'Epic Feats'): ChoreObjective[] {
+    return CHORE_LIST.filter((c) => c.category === category);
   }
 
-  getSelectedChoreMetadata() {
-    return CHORE_LIST.find((c:any) => c.id === this.selectedChoreId);
+  getSelectedChoreMetadata(): ChoreObjective | undefined {
+    return CHORE_LIST.find((c) => c.id === this.selectedChoreId);
   }
 
   onSubmit() {
     if (!this.selectedChoreId) return;
 
-    this.questService.addQuest(this.selectedChoreId);
+    if (this.questService.isChoreLocked(this.selectedChoreId)) {
+      this.questService.gameAlertMessage.set("This objective selection is locked under cooldown parameters!");
+      return;
+    }
 
+    this.questService.addQuest(this.selectedChoreId);
     this.selectedChoreId = '';
   }
 }
