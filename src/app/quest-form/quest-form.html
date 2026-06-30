@@ -9,25 +9,33 @@
         
         <optgroup label="🧹 Daily Maintenance">
           @for (chore of getChoresByCategory('Daily Maintenance'); track chore.id) {
-            <option [value]="chore.id">{{ chore.name }}</option>
+            <option [value]="chore.id" [disabled]="questService.isChoreLocked(chore.id)">
+              {{ chore.name }} {{ questService.isChoreLocked(chore.id) ? '⏳ (Cooldown Active)' : '' }}
+            </option>
           }
         </optgroup>
   
         <optgroup label="🌱 Mental & Physical Health">
           @for (chore of getChoresByCategory('Mental & Physical'); track chore.id) {
-            <option [value]="chore.id">{{ chore.name }}</option>
+            <option [value]="chore.id" [disabled]="questService.isChoreLocked(chore.id)">
+              {{ chore.name }} {{ questService.isChoreLocked(chore.id) ? '⏳ (Cooldown Active)' : '' }}
+            </option>
           }
         </optgroup>
   
         <optgroup label="🧠 Deep Focus & Admin">
           @for (chore of getChoresByCategory('Deep Focus & Admin'); track chore.id) {
-            <option [value]="chore.id">{{ chore.name }}</option>
+            <option [value]="chore.id" [disabled]="questService.isChoreLocked(chore.id)">
+              {{ chore.name }} {{ questService.isChoreLocked(chore.id) ? '⏳ (Cooldown Active)' : '' }}
+            </option>
           }
         </optgroup>
   
         <optgroup label="⚔️ Epic Feats">
           @for (chore of getChoresByCategory('Epic Feats'); track chore.id) {
-            <option [value]="chore.id">{{ chore.name }}</option>
+            <option [value]="chore.id" [disabled]="questService.isChoreLocked(chore.id)">
+              {{ chore.name }} {{ questService.isChoreLocked(chore.id) ? '⏳ (Cooldown Active)' : '' }}
+            </option>
           }
         </optgroup>
       </select>
