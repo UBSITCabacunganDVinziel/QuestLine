@@ -19,6 +19,7 @@ export interface CharacterStats {
   currentXp: number;
   nextLevelXp: number;
   gold: number;
+  phpBalance: number;
   avatarSeed: string;
   completedChoresToday: Record<string, string>;
 }
