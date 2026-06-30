@@ -1,8 +1,8 @@
 import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { QuestService } from '../services/quest.service';
-import { QuestPayload } from '../quest.model';
-import { CHORE_LIST } from '../quest.model';
+import { QuestService } from '../quest-sevice';
+import { QuestPayload } from '../../quest.model';
+import { CHORE_LIST } from '../../quest.model';
 
 @Component({
   selector: 'app-quest-list',
