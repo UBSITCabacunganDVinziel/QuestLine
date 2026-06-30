@@ -8,8 +8,8 @@ import { CHORE_LIST } from '../quest.model';
   selector: 'app-quest-list',
   standalone: true,
   imports: [CommonModule],
-  templateUrl: './quest-list.component.html',
-  styleUrl: './quest-list.component.css'
+  templateUrl: './quest-list.html',
+  styleUrl: './quest-list.css'
 })
 export class QuestList {
   public questService = inject(QuestService);
