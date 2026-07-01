@@ -1,67 +1,60 @@
 <div class="form-container">
   <h3>📜 Post an Adventure Quest</h3>
-  <form (ngSubmit)="onSubmit()" #questForm="ngForm">
-    
-    <div class="input-group">
-      <label for="choreSelect">Select Quest Objective</label>
-      <select id="choreSelect" [(ngModel)]="selectedChoreId" name="selectedChoreId" required class="pixel-input">
-        <option value="" disabled selected>-- Select your task --</option>
-        
-        <optgroup label="🧹 Daily Maintenance">
-          @for (chore of getChoresByCategory('Daily Maintenance'); track chore.id) {
-            <option [value]="chore.id" [disabled]="questService.isChoreLocked(chore.id)">
-              {{ chore.name }} {{ questService.isChoreLocked(chore.id) ? '⏳ (Cooldown Active)' : '' }}
-            </option>
-          }
-        </optgroup>
   
-        <optgroup label="🌱 Mental & Physical Health">
-          @for (chore of getChoresByCategory('Mental & Physical'); track chore.id) {
-            <option [value]="chore.id" [disabled]="questService.isChoreLocked(chore.id)">
-              {{ chore.name }} {{ questService.isChoreLocked(chore.id) ? '⏳ (Cooldown Active)' : '' }}
-            </option>
-          }
-        </optgroup>
-  
-        <optgroup label="🧠 Deep Focus">
-          @for (chore of getChoresByCategory('Deep Focus'); track chore.id) {
-            <option [value]="chore.id" [disabled]="questService.isChoreLocked(chore.id)">
-              {{ chore.name }} {{ questService.isChoreLocked(chore.id) ? '⏳ (Cooldown Active)' : '' }}
-            </option>
-          }
-        </optgroup>
-  
-        <optgroup label="⚔️ Epic Feats">
-          @for (chore of getChoresByCategory('Epic Feats'); track chore.id) {
-            <option [value]="chore.id" [disabled]="questService.isChoreLocked(chore.id)">
-              {{ chore.name }} {{ questService.isChoreLocked(chore.id) ? '⏳ (Cooldown Active)' : '' }}
-            </option>
-          }
-        </optgroup>
-      </select>
+  <div class="input-group">
+    <label for="choreSelect">Select Quest Objective</label>
+    <select id="choreSelect" (change)="onChoreSelect($event)" class="pixel-input">
+      <option value="" disabled selected>-- Select your task --</option>
+      
+      <optgroup label="🧹 Daily Maintenance">
+        @for (chore of getChoresByCategory('Daily Maintenance'); track chore.id) {
+          <option [value]="chore.id" [disabled]="questService.isChoreLocked(chore.id)">
+            {{ chore.name }} {{ questService.isChoreLocked(chore.id) ? '⏳ (Cooldown Active)' : '' }}
+          </option>
+        }
+      </optgroup>
+
+      <optgroup label="🌱 Mental & Physical Health">
+        @for (chore of getChoresByCategory('Mental & Physical'); track chore.id) {
+          <option [value]="chore.id" [disabled]="questService.isChoreLocked(chore.id)">
+            {{ chore.name }} {{ questService.isChoreLocked(chore.id) ? '⏳ (Cooldown Active)' : '' }}
+          </option>
+        }
+      </optgroup>
+
+      <optgroup label="🧠 Deep Focus">
+        @for (chore of getChoresByCategory('Deep Focus'); track chore.id) {
+          <option [value]="chore.id" [disabled]="questService.isChoreLocked(chore.id)">
+            {{ chore.name }} {{ questService.isChoreLocked(chore.id) ? '⏳ (Cooldown Active)' : '' }}
+          </option>
+        }
+      </optgroup>
+
+      <optgroup label="⚔️ Epic Feats">
+        @for (chore of getChoresByCategory('Epic Feats'); track chore.id) {
+          <option [value]="chore.id" [disabled]="questService.isChoreLocked(chore.id)">
+            {{ chore.name }} {{ questService.isChoreLocked(chore.id) ? '⏳ (Cooldown Active)' : '' }}
+          </option>
+        }
+      </optgroup>
+    </select>
+  </div>
+
+  @if (selectedChoreId && getSelectedChoreMetadata(); as chore) {
+    <div class="rewards-preview" style="margin: 15px 0; padding: 10px; border: 2px dashed #ffb400; background: rgba(0,0,0,0.2); border-radius: 4px;">
+      <p style="margin: 5px 0; color: #ffb400; font-weight: bold;">⚡ Rank Tier: {{ chore.difficulty }}</p>
+      <p style="margin: 5px 0;">⭐ XP Reward: +{{ rewardTiers[chore.difficulty].xp }}</p>
+      <p style="margin: 5px 0;">🪙 Gold Reward: +{{ rewardTiers[chore.difficulty].gold }}g</p>
     </div>
 
-    @if (selectedChoreId && getSelectedChoreMetadata(); as chore) {
-      <div class="rewards-preview" style="margin: 15px 0; padding: 10px; border: 2px dashed #ffb400; background: rgba(0,0,0,0.2); border-radius: 4px;">
-        <p style="margin: 5px 0; color: #ffb400; font-weight: bold;">⚡ Rank Tier: {{ chore.difficulty }}</p>
-        <p style="margin: 5px 0;">⭐ XP Reward: +{{ rewardTiers[chore.difficulty].xp }}</p>
-        <p style="margin: 5px 0;">🪙 Gold Reward: +{{ rewardTiers[chore.difficulty].gold }}g</p>
-        
-        @if (questService.isChoreLocked(chore.id)) {
-          <p style="color: #ff5555; font-weight: bold; margin: 10px 0 5px 0; font-size: 0.9rem;">
-            ⏳ Locked: You completed this adventure today!
-          </p>
-        }
-      </div>
-
-      <button 
-        type="submit" 
-        [disabled]="!questForm.form.valid || questService.isChoreLocked(chore.id)" 
-        class="post-btn">
-        POST TO BOARD
-      </button>
-    } @else {
-      <button type="submit" [disabled]="true" class="post-btn">POST TO BOARD</button>
-    }
-  </form>
+    <button 
+      type="button" 
+      (click)="postQuestDirectly()" 
+      [disabled]="questService.isChoreLocked(chore.id)" 
+      class="post-btn">
+      POST TO BOARD
+    </button>
+  } @else {
+    <button type="button" [disabled]="true" class="post-btn">POST TO BOARD</button>
+  }
 </div>
