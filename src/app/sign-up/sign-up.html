@@ -1,6 +1,6 @@
 <div class="auth-box" style="max-width: 400px; margin: 60px auto; padding: 30px; background: #1e1e2e; border: 4px solid #45475a; border-radius: 8px; font-family: 'Courier New', monospace; color: #cdd6f4;">
     <h2 style="text-align: center; color: #a6e3a1; margin-top: 0;">🛡️ HERO REGISTRY</h2>
-    <p style="text-align: center; font-size: 0.85rem; color: #6c7086; margin-bottom: 25px;">Provision a new database user record slot inside MongoDB.</p>
+    <p style="text-align: center; font-size: 0.85rem; color: #6c7086; margin-bottom: 25px;">Create a new player account.</p>
   
     <form (ngSubmit)="onSignUp()">
       <div style="margin-bottom: 15px;">
@@ -9,7 +9,7 @@
       </div>
   
       <div style="margin-bottom: 15px;">
-        <label style="display: block; font-weight: bold; margin-bottom: 5px;">Email Registration Address</label>
+        <label style="display: block; font-weight: bold; margin-bottom: 5px;">Email Address</label>
         <input type="email" [(ngModel)]="email" name="email" required style="width: 100%; padding: 10px; background: #11111b; border: 2px solid #313244; color: #fff; border-radius: 4px; box-sizing: border-box;" />
       </div>
   
@@ -19,7 +19,7 @@
       </div>
   
       <button type="submit" style="width: 100%; padding: 12px; background: #89b4fa; color: #11111b; border: none; font-weight: bold; cursor: pointer; border-radius: 4px; font-size: 1rem; margin-bottom: 15px;">
-        PROVISION ACCOUNT DATA
+        CREATE ACCOUNT
       </button>
     </form>
   
