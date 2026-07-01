@@ -13,7 +13,7 @@
         <input type="password" [(ngModel)]="password" name="password" required style="width: 100%; padding: 10px; background: #11111b; border: 2px solid #313244; color: #fff; border-radius: 4px; box-sizing: border-box;" />
       </div>
   
-      <button type="submit" style="width: 100%; padding: 12px; background: #a6e3a1; color: #11111b; border: none; font-weight: bold; cursor: pointer; border-radius: 4px; font-size: 1rem; margin-bottom: 15px;">
+      <button type="submit" (click)="$event.preventDefault(); onSignIn()" style="width: 100%; padding: 12px; background: #a6e3a1; color: #11111b; border: none; font-weight: bold; cursor: pointer; border-radius: 4px; font-size: 1rem; margin-bottom: 15px;">
         LOG IN
       </button>
     </form>
