@@ -19,6 +19,15 @@ export class SignIn {
 
   onSignIn() {
     if (!this.username || !this.password) return;
-    this.questService.signInPlayer({ username: this.username, password: this.password });
+
+    this.questService.signInPlayer({ username: this.username, password: this.password })
+    .subscribe({
+      next: (Response) => {
+        console.log('Login access granted!', Response);
+      },
+      error: (err) => {
+        console.error('Login access denied:', err);
+      }
+    });
   }
 }
