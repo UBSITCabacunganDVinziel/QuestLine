@@ -3,7 +3,7 @@ export type QuestDifficulty = 'EASY' | 'MEDIUM' | 'HARD' | 'EPIC';
 export interface ChoreObjective {
   id: string;
   name: string;
-  category: 'Daily Maintenance' | 'Mental & Physical' | 'Deep Focus' | 'Epic Feats';
+  category: 'Daily Maintenance' | 'Mental & Physical' | 'Deep Focus & Admin' | 'Epic Feats';
   difficulty: QuestDifficulty;
 }
 
