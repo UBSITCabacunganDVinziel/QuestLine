@@ -35,5 +35,11 @@ export class QuestForm {
 
     this.questService.addQuest(this.selectedChoreId);
     this.selectedChoreId = '';
+
+    if (typeof (this.questService as any).fetchActiveQuestsFromServer === 'function') {
+      (this.questService as any).fetchActiveQuestsFromServer();
+    } else if (typeof (this.questService as any).loadQuests === 'function') {
+      (this.questService as any).loadQuests();
+    }
   }
 }

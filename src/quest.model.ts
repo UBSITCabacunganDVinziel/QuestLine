@@ -3,7 +3,7 @@ export type QuestDifficulty = 'EASY' | 'MEDIUM' | 'HARD' | 'EPIC';
 export interface ChoreObjective {
   id: string;
   name: string;
-  category: 'Daily Maintenance' | 'Mental & Physical' | 'Deep Focus & Admin' | 'Epic Feats';
+  category: 'Daily Maintenance' | 'Mental & Physical' | 'Deep Focus' | 'Epic Feats';
   difficulty: QuestDifficulty;
 }
 
@@ -47,7 +47,7 @@ export const CHORE_LIST: ChoreObjective[] = [
   { id: 'h3', name: 'Complete an intense 45+ minute workout', category: 'Mental & Physical', difficulty: 'MEDIUM' },
   { id: 'h4', name: 'Spend 30 minutes reading or learning a skill', category: 'Mental & Physical', difficulty: 'MEDIUM' },
 
-  // Deep Focus and Admin
+  // Deep Focus
   { id: 'f1', name: 'Review goals and organize daily schedule', category: 'Deep Focus & Admin', difficulty: 'EASY' },
   { id: 'f2', name: 'Run 1 uninterrupted deep-focus session (Pomodoro)', category: 'Deep Focus & Admin', difficulty: 'MEDIUM' },
   { id: 'f3', name: 'Clear out a backlogged queue of personal files or bills', category: 'Deep Focus & Admin', difficulty: 'MEDIUM' },
