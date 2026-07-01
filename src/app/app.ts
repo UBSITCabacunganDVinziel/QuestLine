@@ -5,8 +5,6 @@ import { QuestList } from './quest-list/quest-list';
 import { SignIn } from './sign-in/sign-in';
 import { SignUp } from './sign-up/sign-up';
 import { QuestService } from './quest-service';
-import { ApplicationConfig, provideZonelessChangeDetection } from '@angular/core';
-import { provideHttpClient } from '@angular/common/http';
 
 @Component({
   selector: 'app-root',
@@ -23,11 +21,4 @@ export class App {
   navigateToPage(page: 'signin' | 'signup') {
     this.currentAuthSubPage.set(page);
   }
-}
-
-export const appConfig: ApplicationConfig = {
-  providers: [
-    provideZonelessChangeDetection(),
-    provideHttpClient()
-  ]
 }
