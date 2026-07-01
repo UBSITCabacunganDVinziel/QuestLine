@@ -7,7 +7,7 @@ import { CharacterStats, QuestPayload } from '../quest.model';
 })
 export class QuestService {
   private http = inject(HttpClient);
-  private baseUrl = 'http://localhost:3000/api';
+  private baseUrl = 'http://localhost:3000/api/stats';
 
   //  Authentication State Signals
   public isAuthenticated = signal<boolean>(false);
