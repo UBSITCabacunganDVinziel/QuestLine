@@ -1,6 +1,6 @@
 import { Injectable, signal, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { CharacterStats, QuestPayload } from './quest.model';
+import { CharacterStats, QuestPayload } from '../quest.model';
 
 @Injectable({
   providedIn: 'root'
