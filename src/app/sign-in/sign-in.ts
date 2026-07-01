@@ -24,5 +24,11 @@ export class SignIn {
       username: this.username, 
       password: this.password 
     });
+
+    if (this.questService.isAuthenticated && typeof this.questService.isAuthenticated.set === 'function') {
+      this.questService.isAuthenticated.set(true);
+    } else {
+      (this.questService as any).isAuthenticated = true;
+    }
   }
 }
