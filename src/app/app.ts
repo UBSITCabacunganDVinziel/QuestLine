@@ -4,9 +4,13 @@ import { QuestForm } from './quest-form/quest-form';
 import { QuestList } from './quest-list/quest-list';
 import { SignIn } from './sign-in/sign-in';
 import { SignUp } from './sign-up/sign-up';
+<<<<<<< HEAD
 import { QuestService } from './quest-sevice';
 import { ApplicationConfig, provideZonelessChangeDetection } from '@angular/core';
 import { provideHttpClient } from '@angular/common/http';
+=======
+import { QuestService } from './quest-service';
+>>>>>>> f066b01cd6feebffef0f52da009ecd14f29cb7a7
 
 @Component({
   selector: 'app-root',

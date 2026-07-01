@@ -1,6 +1,6 @@
 import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { QuestService } from '../quest-sevice';
+import { QuestService } from '../quest-service';
 import { FormsModule } from '@angular/forms';
 
 @Component({
