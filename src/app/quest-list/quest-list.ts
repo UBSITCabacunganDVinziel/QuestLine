@@ -1,7 +1,7 @@
 import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { QuestService } from '../quest-sevice'; 
+import { QuestService } from '../quest-service'; 
 import { QuestPayload } from '../../quest.model';    
 import { CHORE_LIST } from '../../quest.model';      
 

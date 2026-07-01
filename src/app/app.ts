@@ -4,7 +4,7 @@ import { QuestForm } from './quest-form/quest-form';
 import { QuestList } from './quest-list/quest-list';
 import { SignIn } from './sign-in/sign-in';
 import { SignUp } from './sign-up/sign-up';
-import { QuestService } from './quest-sevice';
+import { QuestService } from './quest-service';
 
 @Component({
   selector: 'app-root',

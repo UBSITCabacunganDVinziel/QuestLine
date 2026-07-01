@@ -1,7 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { QuestService } from '../quest-sevice';
+import { QuestService } from '../quest-service';
 import { CHORE_LIST, ChoreObjective, REWARD_TIERS } from '../../quest.model';
 
 @Component({
