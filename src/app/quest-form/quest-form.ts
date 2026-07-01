@@ -11,7 +11,6 @@ import { CHORE_LIST, ChoreObjective, REWARD_TIERS } from '../../quest.model';
   templateUrl: './quest-form.html',
   styleUrl: './quest-form.css'
 })
-
 export class QuestForm {
   public questService = inject(QuestService);
   public selectedChoreId = '';
@@ -25,6 +24,11 @@ export class QuestForm {
     return CHORE_LIST.find((c) => c.id === this.selectedChoreId);
   }
 
+  onChoreSelect(event: Event) {
+    const element = event.target as HTMLSelectElement;
+    this.selectedChoreId = element.value;
+  }
+
   onSubmit() {
     if (!this.selectedChoreId) return;
 
@@ -35,6 +39,9 @@ export class QuestForm {
 
     this.questService.addQuest(this.selectedChoreId);
     this.selectedChoreId = '';
+
+    const dropdownElement = document.getElementById('choreSelect') as HTMLSelectElement;
+    if (dropdownElement) dropdownElement.value = '';
 
     if (typeof (this.questService as any).fetchActiveQuestsFromServer === 'function') {
       (this.questService as any).fetchActiveQuestsFromServer();
