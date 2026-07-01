@@ -5,7 +5,7 @@
     <div class="input-group">
       <label for="choreSelect">Select Quest Objective</label>
       <select id="choreSelect" [(ngModel)]="selectedChoreId" name="selectedChoreId" required class="pixel-input">
-        <option value="" disabled selected>-- Select your next task --</option>
+        <option value="" disabled selected>-- Select your task --</option>
         
         <optgroup label="🧹 Daily Maintenance">
           @for (chore of getChoresByCategory('Daily Maintenance'); track chore.id) {
@@ -23,8 +23,8 @@
           }
         </optgroup>
   
-        <optgroup label="🧠 Deep Focus & Admin">
-          @for (chore of getChoresByCategory('Deep Focus & Admin'); track chore.id) {
+        <optgroup label="🧠 Deep Focus">
+          @for (chore of getChoresByCategory('Deep Focus'); track chore.id) {
             <option [value]="chore.id" [disabled]="questService.isChoreLocked(chore.id)">
               {{ chore.name }} {{ questService.isChoreLocked(chore.id) ? '⏳ (Cooldown Active)' : '' }}
             </option>
@@ -49,7 +49,7 @@
         
         @if (questService.isChoreLocked(chore.id)) {
           <p style="color: #ff5555; font-weight: bold; margin: 10px 0 5px 0; font-size: 0.9rem;">
-            ⏳ Locked: You completed this adventure today! Resets tomorrow.
+            ⏳ Locked: You completed this adventure today!
           </p>
         }
       </div>
