@@ -113,7 +113,7 @@ export class QuestService {
     this.http.post<CharacterStats>(`${this.baseUrl}/stats/exchange`, { amount: exchangeAmount })
       .subscribe({
         next: (updatedStats) => this.stats.set(updatedStats),
-        error: (err) => console.error('Exchange matrix processing error:', err)
+        error: (err) => console.error('Error updating your wallet balance. Could not complete the Gold exchange right now.', err)
       });
   }
 }
