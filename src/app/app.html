@@ -1,6 +1,11 @@
 @if (questService.isAuthenticated()) {
   
-  <div style="max-width: 1200px; margin: 0 auto; text-align: right; padding: 10px;">
+  <div style="max-width: 1200px; margin: 0 auto; display: flex; justify-content: flex-end; gap: 10px; padding: 10px 20px 0 20px;">
+    
+    <button (click)="deleteHeroAccountDirectly()" style="background: transparent; border: 1px solid #f38ba8; color: #f38ba8; padding: 6px 12px; font-family: monospace; font-weight: bold; border-radius: 4px; cursor: pointer;">
+      ⚠️ DELETE ACCOUNT
+    </button>
+
     <button (click)="questService.logoutPlayer()" style="background: #f38ba8; color: #111; border: none; padding: 6px 12px; font-family: monospace; font-weight: bold; border-radius: 4px; cursor: pointer;">
       LOGOUT PROFILE
     </button>
