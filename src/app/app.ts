@@ -21,4 +21,20 @@ export class App {
   navigateToPage(page: 'signin' | 'signup') {
     this.currentAuthSubPage.set(page);
   }
+
+  deleteHeroAccountDirectly() {
+    const check = confirm("WARNING: Are you sure you want to permanently delete your profile record from MongoDB? This action cannot be undone!");
+    if (!check) return;
+
+    this.questService.deleteProfileRecord().subscribe({
+      next: () => {
+        alert("Account wiped successfully. Returning to login gateway.");
+        this.questService.logoutPlayer();
+      },
+      error: (err) => {
+        console.error('Account deletion failed:', err);
+        this.questService.logoutPlayer();
+      }
+    });
+  }
 }
