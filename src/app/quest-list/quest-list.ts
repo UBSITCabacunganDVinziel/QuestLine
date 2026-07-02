@@ -1,6 +1,5 @@
 import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
 import { QuestService } from '../quest-service'; 
 import { QuestPayload } from '../../quest.model';    
 import { CHORE_LIST } from '../../quest.model';      
@@ -8,15 +7,13 @@ import { CHORE_LIST } from '../../quest.model';
 @Component({
   selector: 'app-quest-list',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule],
   templateUrl: './quest-list.html',
   styleUrl: './quest-list.css'
 })
 export class QuestList {
   public questService = inject(QuestService);
-  public exchangeAmount: number | null = null;
 
-  // Track profile inline name changes
   public isEditingName = false;
   public newName = '';
 
@@ -29,15 +26,14 @@ export class QuestList {
     };
   }
 
-  // FIXED: Explicitly added the missing start function to toggle inputs
   startEditingName() {
     this.newName = this.questService.stats().name;
     this.isEditingName = true;
   }
 
-  saveHeroName() {
-    if (!this.newName.trim()) return;
-    this.questService.updateCharacterName(this.newName.trim()).subscribe({
+  saveHeroName(updatedName: string) {
+    if (!updatedName.trim()) return;
+    this.questService.updateCharacterName(updatedName.trim()).subscribe({
       next: () => {
         this.isEditingName = false;
       }
@@ -45,7 +41,7 @@ export class QuestList {
   }
 
   deleteHeroAccount() {
-    const doubleCheck = confirm("Are you absolute sure you want to delete this profile? All saved data records inside MongoDB will be wiped!");
+    const doubleCheck = confirm("Are you absolutely sure you want to delete this profile? All saved data records inside MongoDB will be wiped!");
     if (!doubleCheck) return;
 
     this.questService.deleteProfileRecord().subscribe({
@@ -56,23 +52,23 @@ export class QuestList {
     });
   }
 
-  triggerGoldExchange() {
-    if (this.exchangeAmount !== null && this.exchangeAmount <= 0) {
+  triggerGoldExchange(inputElement: HTMLInputElement) {
+    const amountValue = inputElement.value ? parseInt(inputElement.value) : 0;
+
+    if (amountValue <= 0) {
       this.questService.gameAlertMessage.set("Exchange quantity error: Input must be greater than zero!");
-      this.exchangeAmount = null;
+      inputElement.value = '';
       return;
     }
 
-    if (this.exchangeAmount && this.exchangeAmount > this.questService.stats().gold) {
+    if (amountValue > this.questService.stats().gold) {
       this.questService.gameAlertMessage.set("Insufficient gold inside inventory bag!");
-      this.exchangeAmount = null;
+      inputElement.value = '';
       return;
     }
 
-    if (this.exchangeAmount && this.exchangeAmount > 0) {
-      this.questService.exchangeGoldToPhp(this.exchangeAmount);
-      this.exchangeAmount = null; 
-    }
+    this.questService.exchangeGoldToPhp(amountValue);
+    inputElement.value = ''; 
   }
 
   trackById(index: number, item: QuestPayload) {
