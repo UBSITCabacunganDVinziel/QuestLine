@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { QuestService } from '../quest-service'; 
@@ -16,6 +16,7 @@ export class QuestList {
   public questService = inject(QuestService);
   public exchangeAmount: number | null = null;
 
+  // Track profile inline name changes
   public isEditingName = false;
   public newName = '';
 
@@ -23,9 +24,15 @@ export class QuestList {
     return CHORE_LIST.find((c) => c.id === choreId) || {
       id: 'unknown',
       name: 'Unknown Quest Assignment',
-      category: 'Daily Maintenance',
-      difficulty: 'EASY'
+      category: 'Daily Maintenance' as const,
+      difficulty: 'EASY' as const
     };
+  }
+
+  // FIXED: Explicitly added the missing start function to toggle inputs
+  startEditingName() {
+    this.newName = this.questService.stats().name;
+    this.isEditingName = true;
   }
 
   saveHeroName() {
@@ -38,12 +45,12 @@ export class QuestList {
   }
 
   deleteHeroAccount() {
-    const doubleCheck = confirm("Are you absolute sure you want to delete this profile? All saved records will be wiped!");
+    const doubleCheck = confirm("Are you absolute sure you want to delete this profile? All saved data records inside MongoDB will be wiped!");
     if (!doubleCheck) return;
 
     this.questService.deleteProfileRecord().subscribe({
       next: () => {
-        alert("Character record(s) wiped. Returning to Gateway login.");
+        alert("Character data wiped. Returning to Gateway login.");
         this.questService.logoutPlayer();
       }
     });
