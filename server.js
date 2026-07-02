@@ -1,81 +1,78 @@
 const express = require('express');
-const fs = require('fs');
-const path = require('path');
 const cors = require('cors');
-
 const app = express();
-const PORT = process.env.PORT || 3000;
-const DATA_FILE = path.join(__dirname, 'quest_progress.json');
 
 app.use(cors());
 app.use(express.json());
 
-// Flat-file Database Helpers
-function readData() {
-    if (!fs.existsSync(DATA_FILE)) {
-        fs.writeFileSync(DATA_FILE, JSON.stringify({ players: {} }, null, 2));
+// In-Memory Simulated Database Mock Data Layer. 
+// Replace this logic with your mongoose model queries (e.g., Player.findByIdAndUpdate)
+let mockDatabase = {
+  players: {
+    "mock-user-123": {
+      name: "Arthur Pendragon",
+      level: 1,
+      currentXp: 450,
+      nextLevelXp: 1000,
+      gold: 500,
+      phpBalance: 20.00,
+      avatarSeed: "QuestLineHero",
+      completedChoresToday: {}
     }
-    return JSON.parse(fs.readFileSync(DATA_FILE, 'utf8'));
-}
+  },
+  quests: []
+};
 
-function saveData(data) {
-    fs.writeFileSync(DATA_FILE, JSON.stringify(data, null, 2));
-}
-
-// 1. Initial State Load - Eliminates the static "Guest Player" initialization bug
-app.post('/api/player/load', (req, res) => {
-    const { username } = req.body;
-    const db = readData();
-
-    if (!db.players[username]) {
-        db.players[username] = { username: username || 'Guest Player', xp: 0, level: 1, completedQuestIds: [] };
-        saveData(db);
+// 1. ROUTE: Save Character Moniker Rename Actions
+app.put('/api/stats/name', (req, res) => {
+    const { userId, name } = req.body;
+    const targetId = userId || "mock-user-123";
+    
+    if (!mockDatabase.players[targetId]) {
+        return res.status(404).json({ error: "Profile records could not be resolved." });
     }
-    res.json(db.players[username]);
+    
+    mockDatabase.players[targetId].name = name;
+    res.json(mockDatabase.players[targetId]);
 });
 
-// 2. Profile Rename Endpoint - Intercepts the Save Name execution
-app.post('/api/player/rename', (req, res) => {
-    const { currentUsername, newUsername } = req.body;
-    const db = readData();
+// 2. ROUTE: Process Wallet Gold to PHP Conversion Exchange Rates
+app.post('/api/stats/exchange', (req, res) => {
+    const { userId, goldAmount } = req.body;
+    const targetId = userId || "mock-user-123";
+    const player = mockDatabase.players[targetId];
 
-    if (!newUsername || newUsername.trim() === '') {
-        return res.status(400).json({ error: 'Username cannot be blank.' });
-    }
-    if (db.players[newUsername]) {
-        return res.status(400).json({ error: 'This character name already exists.' });
-    }
+    if (!player) return res.status(404).json({ error: "Player profile not found." });
+    if (player.gold < goldAmount) return res.status(400).json({ error: "Insufficient gold balance." });
 
-    if (db.players[currentUsername]) {
-        db.players[newUsername] = { ...db.players[currentUsername], username: newUsername };
-        delete db.players[currentUsername];
-    } else {
-        db.players[newUsername] = { username: newUsername, xp: 0, level: 1, completedQuestIds: [] };
-    }
+    // Deduct and compute exchange metrics
+    player.gold -= goldAmount;
+    player.phpBalance += (goldAmount * 0.05); // Conversion formula mapping ratio coefficient
 
-    saveData(db);
-    res.json({ success: true, newUsername });
+    res.json(player);
 });
 
-// 3. Quest Reward Progression Claim Endpoint
-app.post('/api/player/claim', (req, res) => {
-    const { username, questId, xpReward } = req.body;
-    const db = readData();
+// 3. ROUTE: Quest Completion Execution Pipeline
+app.put('/api/quests/:questId/complete', (req, res) => {
+    const { questId } = req.params;
+    const { difficulty } = req.body;
+    const targetId = "mock-user-123"; // Fallback identifier binding tracking key
+    const player = mockDatabase.players[targetId];
 
-    const player = db.players[username];
-    if (!player) return res.status(404).json({ error: 'Player context missing.' });
+    let xpReward = difficulty === 'HARD' ? 300 : difficulty === 'MEDIUM' ? 150 : 75;
+    let goldReward = difficulty === 'HARD' ? 50 : 25;
 
-    if (!player.completedQuestIds) player.completedQuestIds = [];
-    if (player.completedQuestIds.includes(questId)) {
-        return res.status(400).json({ error: 'Quest reward already claimed.' });
+    player.currentXp += xpReward;
+    player.gold += goldReward;
+
+    // Check for leveling up thresholds
+    if (player.currentXp >= player.nextLevelXp) {
+        player.level += 1;
+        player.currentXp -= player.nextLevelXp;
+        player.nextLevelXp += 500; 
     }
 
-    player.completedQuestIds.push(questId);
-    player.xp += xpReward;
-    player.level = Math.floor(player.xp / 1000) + 1; // 1000 XP threshold progression formula
-
-    saveData(db);
-    res.json({ success: true, player });
+    res.json({ quest: { id: questId, isCompleted: true }, stats: player });
 });
 
-app.listen(PORT, () => console.log(`QuestLine Engine Running on Port ${PORT}`));
+app.listen(3000, () => console.log('QuestLine Engine Data Server operational on port 3000!'));
