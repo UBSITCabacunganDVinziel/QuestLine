@@ -1,4 +1,4 @@
-import { Component, inject, output } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { QuestService } from '../quest-service';
@@ -7,28 +7,22 @@ import { QuestService } from '../quest-service';
   selector: 'app-sign-in',
   standalone: true,
   imports: [CommonModule, FormsModule],
-  templateUrl: './sign-in.html'
+  template: `
+    <div class="auth-box" *ngIf="!authService.currentUser()">
+      <h3>🔓 Enter QuestLine Kingdom</h3>
+      <input type="text" [(ngModel)]="username" placeholder="Hero Name" />
+      <input type="password" [(ngModel)]="password" placeholder="Secret Key" />
+      <button (click)="login()">Authenticate Session</button>
+    </div>
+  `
 })
-export class SignIn {
-  private questService = inject(QuestService);
-  
-  public username = '';
-  public password = '';
-  
-  onSwitchToSignUp = output<void>();
+export class SignInComponent {
+  authService = inject(QuestService);
+  username = ''; password = '';
 
-  onSignIn() {
-    if (!this.username || !this.password) return;
-
-    this.questService.signInPlayer({ 
-      username: this.username, 
-      password: this.password 
-    });
-
-    if (this.questService.isAuthenticated && typeof this.questService.isAuthenticated.set === 'function') {
-      this.questService.isAuthenticated.set(true);
-    } else {
-      (this.questService as any).isAuthenticated = true;
+  login() {
+    if (!this.authService.signIn(this.username, this.password)) {
+      alert('Invalid Hero identity matching credentials.');
     }
   }
 }
