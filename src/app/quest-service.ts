@@ -15,7 +15,7 @@ export class QuestService {
   public isAuthenticated = signal<boolean>(false);
   public currentUserToken = signal<string | null>(null);
 
-  public stats = signal<CharacterStats>({
+  public stats = signal<any>({
     name: 'Guest Player',
     level: 1,
     currentXp: 0,
@@ -73,8 +73,11 @@ export class QuestService {
   public loadStatsFromServer(userId: string) {
     this.http.get<CharacterStats>(`${this.gameUrl}/stats/${userId}`)
       .subscribe({
-        next: (data) => this.stats.set(data),
-        error: (err) => console.error('Failed to load player statistics:', err)
+        next: (data) => {
+          const completeStatsPayload = { ...data, userId: userId };
+          this.stats.set(completeStatsPayload);
+        },
+        error: (err) => console.error('Failed to load player statistics matrix data records:', err)
       });
   }
 
@@ -98,7 +101,9 @@ export class QuestService {
 
   addQuest(choreId: string) {
     const currentStats = this.stats();
-    const userId = (currentStats as any).userId || (currentStats as any)._id;
+    const userId = currentStats.userId || currentStats._id;
+
+    if (!userId) return;
 
     this.http.post<QuestPayload>(`${this.gameUrl}/quests`, { userId, choreId })
       .subscribe({
@@ -114,9 +119,12 @@ export class QuestService {
     this.http.put<{quest: QuestPayload, stats: CharacterStats}>(`${this.gameUrl}/quests/${questId}/complete`, { difficulty })
       .subscribe({
         next: (res) => {
-          this.stats.set(res.stats);
           const currentStats = this.stats();
-          const userId = (currentStats as any).userId || (currentStats as any)._id;
+          const userId = currentStats.userId;
+          
+          const updatedStatsPayload = { ...res.stats, userId: userId };
+          this.stats.set(updatedStatsPayload);
+          
           if (userId) this.loadActiveQuests(userId);
         },
         error: (err) => this.gameAlertMessage.set(err.error?.error || 'Quest action blocked.')
@@ -134,12 +142,13 @@ export class QuestService {
 
   exchangeGoldToPhp(goldAmount: number) {
     const currentStats = this.stats();
-    const userId = (currentStats as any).userId || (currentStats as any)._id;
+    const userId = currentStats.userId;
 
     this.http.post<CharacterStats>(`${this.gameUrl}/stats/exchange`, { userId, goldAmount })
       .subscribe({
         next: (updatedStats) => {
-          this.stats.set(updatedStats);
+          const updatedStatsPayload = { ...updatedStats, userId: userId };
+          this.stats.set(updatedStatsPayload);
           this.gameAlertMessage.set('');
         },
         error: (err) => this.gameAlertMessage.set(err.error?.error || 'Exchange process error.')
@@ -148,18 +157,19 @@ export class QuestService {
 
   updateCharacterName(newName: string) {
     const currentStats = this.stats();
-    const userId = (currentStats as any).userId || (currentStats as any)._id;
+    const userId = currentStats.userId;
 
     return this.http.put<CharacterStats>(`${this.gameUrl}/stats/name`, { userId, name: newName }).pipe(
       tap(updatedStats => {
-        this.stats.set(updatedStats);
+        const updatedStatsPayload = { ...updatedStats, userId: userId };
+        this.stats.set(updatedStatsPayload);
       })
     );
   }
 
   deleteProfileRecord() {
     const currentStats = this.stats();
-    const userId = (currentStats as any).userId || (currentStats as any)._id;
+    const userId = currentStats.userId;
     return this.http.delete(`${this.gameUrl}/auth/account/${userId}`);
   }
 }
