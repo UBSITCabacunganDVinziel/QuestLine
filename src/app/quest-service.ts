@@ -9,14 +9,14 @@ import { tap } from 'rxjs/operators';
 export class QuestService {
   private http = inject(HttpClient);
   
-  private authUrl = 'http://localhost:3000/api/stats';
+  private authUrl = 'http://localhost:3000/api/auth';
   private gameUrl = 'http://localhost:3000/api';
 
   public isAuthenticated = signal<boolean>(false);
   public currentUserToken = signal<string | null>(null);
 
   public stats = signal<CharacterStats>({
-    name: localStorage.getItem('questline_cached_username') || 'Guest Player',
+    name: 'Guest Player',
     level: 1,
     currentXp: 0,
     nextLevelXp: 100,
@@ -30,30 +30,22 @@ export class QuestService {
   public gameAlertMessage = signal<string>('');
 
   signInPlayer(credentials: any) {
-    this.http.post<{token: string, stats: CharacterStats}>(`${this.authUrl}/signin`, credentials)
+    this.http.post<{success: boolean, token?: string, userId: string, username: string}>(`${this.authUrl}/signin`, credentials)
       .subscribe({
         next: (res) => {
-          this.currentUserToken.set(res.token);
-          
-          const updatedProfileStats = { ...res.stats };
-          const customCachedName = localStorage.getItem('questline_cached_username');
-          if (customCachedName) {
-            updatedProfileStats.name = customCachedName;
-          } else {
-            localStorage.setItem('questline_cached_username', res.stats.name);
-          }
-
-          this.stats.set(updatedProfileStats);
+          this.currentUserToken.set(res.token || 'mock-token');
           this.isAuthenticated.set(true);
           this.gameAlertMessage.set('');
-          this.loadActiveQuests();
+          
+          this.loadStatsFromServer(res.userId);
+          this.loadActiveQuests(res.userId);
         },
         error: (err) => this.gameAlertMessage.set(err.error?.error || 'Access Denied.')
       });
   }
 
   signUpPlayer(accountData: any) {
-    this.http.post<{message: string}>(`${this.authUrl}/signup`, accountData)
+    this.http.post<{success: boolean, message: string}>(`${this.authUrl}/signup`, accountData)
       .subscribe({
         next: () => this.gameAlertMessage.set('Account generated! Ready for login.'),
         error: (err) => this.gameAlertMessage.set(err.error?.error || 'Registration failed.')
@@ -65,18 +57,29 @@ export class QuestService {
     this.currentUserToken.set(null);
     this.quests.set([]);
     
-    this.stats.update(currentStats => ({
-      ...currentStats,
-      name: localStorage.getItem('questline_cached_username') || 'Guest Player',
+    this.stats.set({
+      name: 'Guest Player',
       gold: 0,
       level: 1,
-      phpBalance: 0
-    }));
+      currentXp: 0,
+      nextLevelXp: 100,
+      phpBalance: 0,
+      avatarSeed: 'QuestLineHero',
+      completedChoresToday: {}
+    });
     this.gameAlertMessage.set('');
   }
 
-  public loadActiveQuests() {
-    this.http.get<QuestPayload[]>(`${this.gameUrl}/quests`)
+  public loadStatsFromServer(userId: string) {
+    this.http.get<CharacterStats>(`${this.gameUrl}/stats/${userId}`)
+      .subscribe({
+        next: (data) => this.stats.set(data),
+        error: (err) => console.error('Failed to load player statistics:', err)
+      });
+  }
+
+  public loadActiveQuests(userId: string) {
+    this.http.get<QuestPayload[]>(`${this.gameUrl}/quests/${userId}`)
       .subscribe({
         next: (data) => this.quests.set(data),
         error: (err) => console.error('Failed to load quests board:', err)
@@ -94,7 +97,10 @@ export class QuestService {
   }
 
   addQuest(choreId: string) {
-    this.http.post<QuestPayload>(`${this.gameUrl}/quests`, { choreId })
+    const currentStats = this.stats();
+    const userId = (currentStats as any).userId || (currentStats as any)._id;
+
+    this.http.post<QuestPayload>(`${this.gameUrl}/quests`, { userId, choreId })
       .subscribe({
         next: (newQuest) => {
           this.quests.update(currentList => [...currentList, newQuest]);
@@ -108,13 +114,10 @@ export class QuestService {
     this.http.put<{quest: QuestPayload, stats: CharacterStats}>(`${this.gameUrl}/quests/${questId}/complete`, { difficulty })
       .subscribe({
         next: (res) => {
-          const synchronizedStats = { ...res.stats };
-          const customCachedName = localStorage.getItem('questline_cached_username');
-          if (customCachedName) {
-            synchronizedStats.name = customCachedName;
-          }
-          this.stats.set(synchronizedStats);
-          this.loadActiveQuests(); 
+          this.stats.set(res.stats);
+          const currentStats = this.stats();
+          const userId = (currentStats as any).userId || (currentStats as any)._id;
+          if (userId) this.loadActiveQuests(userId);
         },
         error: (err) => this.gameAlertMessage.set(err.error?.error || 'Quest action blocked.')
       });
@@ -130,15 +133,13 @@ export class QuestService {
   }
 
   exchangeGoldToPhp(goldAmount: number) {
-    this.http.post<CharacterStats>(`${this.gameUrl}/stats/exchange`, { goldAmount })
+    const currentStats = this.stats();
+    const userId = (currentStats as any).userId || (currentStats as any)._id;
+
+    this.http.post<CharacterStats>(`${this.gameUrl}/stats/exchange`, { userId, goldAmount })
       .subscribe({
         next: (updatedStats) => {
-          const synchronizedStats = { ...updatedStats };
-          const customCachedName = localStorage.getItem('questline_cached_username');
-          if (customCachedName) {
-            synchronizedStats.name = customCachedName;
-          }
-          this.stats.set(synchronizedStats);
+          this.stats.set(updatedStats);
           this.gameAlertMessage.set('');
         },
         error: (err) => this.gameAlertMessage.set(err.error?.error || 'Exchange process error.')
@@ -146,18 +147,19 @@ export class QuestService {
   }
 
   updateCharacterName(newName: string) {
-    return this.http.put<CharacterStats>(`${this.gameUrl}/stats/name`, { name: newName }).pipe(
+    const currentStats = this.stats();
+    const userId = (currentStats as any).userId || (currentStats as any)._id;
+
+    return this.http.put<CharacterStats>(`${this.gameUrl}/stats/name`, { userId, name: newName }).pipe(
       tap(updatedStats => {
-        localStorage.setItem('questline_cached_username', newName);
-        
-        const synchronizedStats = { ...updatedStats, name: newName };
-        this.stats.set(synchronizedStats);
+        this.stats.set(updatedStats);
       })
     );
   }
 
   deleteProfileRecord() {
-    localStorage.removeItem('questline_cached_username');
-    return this.http.delete(`${this.gameUrl}/stats/account`);
+    const currentStats = this.stats();
+    const userId = (currentStats as any).userId || (currentStats as any)._id;
+    return this.http.delete(`${this.gameUrl}/auth/account/${userId}`);
   }
 }
