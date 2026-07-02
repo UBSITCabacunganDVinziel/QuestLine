@@ -1,105 +1,112 @@
-<header class="status-banner" style="background: #11111b; border: 4px solid #313244; border-radius: 8px; padding: 20px; margin-bottom: 25px; color: #cdd6f4; font-family: 'Courier New', monospace;">
-  <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;">
-    
-    <div>
-      <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 5px;">
-        @if (!isEditingName) {
-          <h1 style="margin: 0; color: #f9e2af; font-size: 1.8rem;">🛡️ {{ questService.stats().name }}</h1>
-          <button (click)="startEditingName()" style="background: transparent; border: none; color: #a6e3a1; cursor: pointer; font-family: monospace; font-size: 0.85rem;">[Rename]</button>
-        } @else {
-          <input #nameInput type="text" [value]="newName" placeholder="New character name..." style="background: #222; border: 1px solid #555; color: #fff; padding: 4px; border-radius: 4px; font-family: monospace; font-size: 1rem;" />
-          <button (click)="saveHeroName(nameInput.value)" style="background: #a6e3a1; color: #111; border: none; padding: 4px 8px; border-radius: 4px; font-weight: bold; cursor: pointer;">Save</button>
-          <button (click)="isEditingName = false" style="background: #f38ba8; color: #111; border: none; padding: 4px 8px; border-radius: 4px; font-weight: bold; cursor: pointer;">X</button>
-        }
-      </div>
+<div style="max-width: 1200px; margin: 0 auto; font-family: 'Courier New', monospace;">
+  
+  <header style="text-align: center; margin-bottom: 25px; padding: 10px; border-bottom: 2px dashed #313244;">
+    <h1 style="color: #a6e3a1; margin: 0; font-size: 2.2rem; letter-spacing: 3px; font-weight: bold;">⚔️ QUESTLINE ⚔️</h1>
+  </header>
 
-      <p style="margin: 0; font-size: 1.1rem; font-weight: bold; color: #a6e3a1;">
-        Level: {{ questService.stats().level }} 
-        <span style="font-size: 0.85rem; color: #89b4fa; font-weight: normal; margin-left: 10px;">
-          (XP: {{ questService.stats().currentXp }} / {{ questService.stats().nextLevelXp }})
-        </span>
-      </p>
-    </div>
-
-    <div style="display: flex; gap: 20px; align-items: center; background: rgba(0,0,0,0.3); padding: 12px; border-radius: 6px;">
+  <section class="status-banner" style="background: #11111b; border: 4px solid #313244; border-radius: 8px; padding: 20px; margin-bottom: 25px; color: #cdd6f4;">
+    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;">
+      
       <div>
-        <p style="margin: 0 0 3px 0; color: #f9e2af; font-size: 0.85rem; font-weight: bold;">🟡 Gold</p>
-        <p style="margin: 0; font-size: 1.2rem; color: #f9e2af; font-weight: bold;">{{ questService.stats().gold }}g</p>
+        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 5px;">
+          @if (!isEditingName) {
+            <h2 style="margin: 0; color: #f9e2af; font-size: 1.8rem;">🛡️ {{ questService.stats().name }}</h2>
+            <button (click)="startEditingName()" style="background: transparent; border: none; color: #a6e3a1; cursor: pointer; font-family: monospace; font-size: 0.85rem;">[Rename]</button>
+          } @else {
+            <input #nameInput type="text" [value]="newName" placeholder="New character name..." style="background: #222; border: 1px solid #555; color: #fff; padding: 4px; border-radius: 4px; font-family: monospace; font-size: 1rem;" />
+            <button (click)="saveHeroName(nameInput.value)" style="background: #a6e3a1; color: #111; border: none; padding: 4px 8px; border-radius: 4px; font-weight: bold; cursor: pointer;">Save</button>
+            <button (click)="isEditingName = false" style="background: #f38ba8; color: #111; border: none; padding: 4px 8px; border-radius: 4px; font-weight: bold; cursor: pointer;">X</button>
+          }
+        </div>
+
+        <p style="margin: 0; font-size: 1.1rem; font-weight: bold; color: #a6e3a1;">
+          Level: {{ questService.stats().level }} 
+          <span style="font-size: 0.85rem; color: #89b4fa; font-weight: normal; margin-left: 10px;">
+            (XP: {{ questService.stats().currentXp }} / {{ questService.stats().nextLevelXp }})
+          </span>
+        </p>
       </div>
-      
-      <div style="border-left: 2px solid #45475a; height: 35px;"></div>
 
-      <div>
-        <p style="margin: 0 0 3px 0; color: #a6e3a1; font-size: 0.85rem; font-weight: bold;">💸 Balance</p>
-        <p style="margin: 0; font-size: 1.2rem; color: #a6e3a1; font-weight: bold;">₱{{ questService.stats().phpBalance.toFixed(2) }}</p>
-      </div>
+      <div style="display: flex; gap: 20px; align-items: center; background: rgba(0,0,0,0.3); padding: 12px; border-radius: 6px;">
+        <div>
+          <p style="margin: 0 0 3px 0; color: #f9e2af; font-size: 0.85rem; font-weight: bold;">🟡 Gold</p>
+          <p style="margin: 0; font-size: 1.2rem; color: #f9e2af; font-weight: bold;">{{ questService.stats().gold }}g</p>
+        </div>
+        
+        <div style="border-left: 2px solid #45475a; height: 35px;"></div>
 
-      <div style="display: flex; flex-direction: column; gap: 4px;">
-        <input 
-          #goldAmtInput
-          type="number" 
-          min="0"
-          onkeydown="return event.keyCode !== 189 && event.keyCode !== 109"
-          oninput="if(this.value < 0) this.value = 0;"
-          placeholder="Amount" 
-          style="width: 80px; padding: 4px; background: #222; color: #fff; border: 1px solid #555; border-radius: 4px; font-size: 0.8rem;"
-        />
-        <button 
-          (click)="triggerGoldExchange(goldAmtInput)" 
-          style="background: #a6e3a1; color: #111; border: none; padding: 4px; font-weight: bold; cursor: pointer; border-radius: 4px; font-size: 0.75rem;">
-          EXCHANGE
-        </button>
-      </div>
-    </div>
-  </div>
+        <div>
+          <p style="margin: 0 0 3px 0; color: #a6e3a1; font-size: 0.85rem; font-weight: bold;">💸 Balance</p>
+          <p style="margin: 0; font-size: 1.2rem; color: #a6e3a1; font-weight: bold;">₱{{ questService.stats().phpBalance.toFixed(2) }}</p>
+        </div>
 
-  <div style="text-align: right; margin-top: 15px; padding-top: 10px; border-top: 1px dashed #313244;">
-    <button (click)="deleteHeroAccount()" style="background: transparent; border: none; color: #f38ba8; cursor: pointer; font-size: 0.8rem; text-decoration: underline;">
-      ⚠️ Delete Account Record
-    </button>
-  </div>
-</header>
-
-<div class="list-container" style="font-family: 'Courier New', monospace;">
-  <h3 style="color: #cdd6f4; border-bottom: 2px solid #45475a; padding-bottom: 8px;">⚔️ Active Quest Tracker Board</h3>
-
-  @if (questService.quests().length === 0) {
-    <p class="empty-msg" style="color: #6c7086; font-style: italic;">No tasks found. Visit the board registry above to post an adventure.</p>
-  }
-
-  @for (quest of questService.quests(); track quest.id) {
-    @let chore = getChoreMetadata(quest.choreId);
-    @let isCooldownActive = questService.isChoreLocked(quest.choreId);
-
-    <div class="quest-card" 
-         [style.background]="quest.isCompleted ? '#252535' : '#1e1e2e'"
-         style="border: 2px solid #45475a; border-radius: 6px; padding: 15px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; gap: 15px;">
-      
-      <div class="card-details">
-        <h4 [style.text-decoration]="quest.isCompleted ? 'line-through' : 'none'" style="margin: 0 0 5px 0; color: #cdd6f4;">
-          {{ chore.name }}
-        </h4>
-        <p style="margin: 0 0 5px 0; font-size: 0.85rem; color: #bac2de;">📂 Category: {{ chore.category }}</p>
-        <span style="font-size: 0.8rem; font-weight: bold; padding: 2px 6px; border-radius: 4px; background: #313244; color: #f9e2af;">
-          {{ chore.difficulty }}
-        </span>
-      </div>
-      
-      <div class="card-actions" style="display: flex; gap: 8px; align-items: center;">
-        @if (!quest.isCompleted) {
+        <div style="display: flex; flex-direction: column; gap: 4px;">
+          <input 
+            #goldAmtInput
+            type="number" 
+            min="0"
+            onkeydown="return event.keyCode !== 189 && event.keyCode !== 109"
+            oninput="if(this.value < 0) this.value = 0;"
+            placeholder="Amount" 
+            style="width: 80px; padding: 4px; background: #222; color: #fff; border: 1px solid #555; border-radius: 4px; font-size: 0.8rem;"
+          />
           <button 
-            [disabled]="isCooldownActive"
-            (click)="questService.completeQuest(quest.id, chore.difficulty)"
-            style="background: #a6e3a1; color: #111; border: none; padding: 6px 12px; font-weight: bold; border-radius: 4px; cursor: pointer;">
-            {{ isCooldownActive ? '⏳ LOCKED' : 'CLAIM' }}
+            (click)="triggerGoldExchange(goldAmtInput)" 
+            style="background: #a6e3a1; color: #111; border: none; padding: 4px; font-weight: bold; cursor: pointer; border-radius: 4px; font-size: 0.75rem;">
+            EXCHANGE
           </button>
-        }
-        <button 
-          (click)="questService.deleteQuest(quest.id)"
-          style="background: #f38ba8; color: #111; border: none; padding: 6px 10px; font-weight: bold; border-radius: 4px; cursor: pointer;">
-          ❌
-        </button>
+        </div>
       </div>
     </div>
-  }
+
+    <div style="text-align: right; margin-top: 15px; padding-top: 10px; border-top: 1px dashed #313244;">
+      <button (click)="deleteHeroAccount()" style="background: transparent; border: none; color: #f38ba8; cursor: pointer; font-size: 0.8rem; text-decoration: underline;">
+        ⚠️ Delete Account Record
+      </button>
+    </div>
+  </section>
+
+  <div class="list-container">
+    <h3 style="color: #cdd6f4; border-bottom: 2px solid #45475a; padding-bottom: 8px;">⚔️ Active Quest Tracker Board</h3>
+
+    @if (questService.quests().length === 0) {
+      <p class="empty-msg" style="color: #6c7086; font-style: italic;">No tasks found. Visit the board registry above to post an adventure.</p>
+    }
+
+    @for (quest of questService.quests(); track quest.id) {
+      @let chore = getChoreMetadata(quest.choreId);
+      @let isCooldownActive = questService.isChoreLocked(quest.choreId);
+
+      <div class="quest-card" 
+           [style.background]="quest.isCompleted ? '#252535' : '#1e1e2e'"
+           style="border: 2px solid #45475a; border-radius: 6px; padding: 15px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; gap: 15px;">
+        
+        <div class="card-details">
+          <h4 [style.text-decoration]="quest.isCompleted ? 'line-through' : 'none'" style="margin: 0 0 5px 0; color: #cdd6f4;">
+            {{ chore.name }}
+          </h4>
+          <p style="margin: 0 0 5px 0; font-size: 0.85rem; color: #bac2de;">📂 Category: {{ chore.category }}</p>
+          <span style="font-size: 0.8rem; font-weight: bold; padding: 2px 6px; border-radius: 4px; background: #313244; color: #f9e2af;">
+            {{ chore.difficulty }}
+          </span>
+        </div>
+        
+        <div class="card-actions" style="display: flex; gap: 8px; align-items: center;">
+          @if (!quest.isCompleted) {
+            <button 
+              [disabled]="isCooldownActive"
+              (click)="questService.completeQuest(quest.id, chore.difficulty)"
+              style="background: #a6e3a1; color: #111; border: none; padding: 6px 12px; font-weight: bold; border-radius: 4px; cursor: pointer;">
+              {{ isCooldownActive ? '⏳ LOCKED' : 'CLAIM' }}
+            </button>
+          }
+          <button 
+            [disabled]="true"
+            style="background: #45475a; color: #888; border: none; padding: 6px 10px; font-weight: bold; border-radius: 4px; cursor: not-allowed;">
+            ❌
+          </button>
+        </div>
+      </div>
+    }
+  </div>
 </div>
