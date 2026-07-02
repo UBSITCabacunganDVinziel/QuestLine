@@ -5,81 +5,77 @@ const cors = require('cors');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
-const DB_PATH = path.join(__dirname, 'db.json');
+const DATA_FILE = path.join(__dirname, 'quest_progress.json');
 
 app.use(cors());
 app.use(express.json());
 
-// Helper function to read/write state records
-function readDB() {
-    if (!fs.existsSync(DB_PATH)) {
-        fs.writeFileSync(DB_PATH, JSON.stringify({ players: {} }, null, 2));
+// Flat-file Database Helpers
+function readData() {
+    if (!fs.existsSync(DATA_FILE)) {
+        fs.writeFileSync(DATA_FILE, JSON.stringify({ players: {} }, null, 2));
     }
-    return JSON.parse(fs.readFileSync(DB_PATH, 'utf8'));
+    return JSON.parse(fs.readFileSync(DATA_FILE, 'utf8'));
 }
 
-function writeDB(data) {
-    fs.writeFileSync(DB_PATH, JSON.stringify(data, null, 2));
+function saveData(data) {
+    fs.writeFileSync(DATA_FILE, JSON.stringify(data, null, 2));
 }
 
-// ROUTE: Get Profile Data or Generate a New One
+// 1. Initial State Load - Eliminates the static "Guest Player" initialization bug
 app.post('/api/player/load', (req, res) => {
     const { username } = req.body;
-    const db = readDB();
-    
+    const db = readData();
+
     if (!db.players[username]) {
-        db.players[username] = { username, xp: 0, level: 1, claimedQuests: [] };
-        writeDB(db);
+        db.players[username] = { username: username || 'Guest Player', xp: 0, level: 1, completedQuestIds: [] };
+        saveData(db);
     }
     res.json(db.players[username]);
 });
 
-// ROUTE: Rename User & Sync Progress
+// 2. Profile Rename Endpoint - Intercepts the Save Name execution
 app.post('/api/player/rename', (req, res) => {
     const { currentUsername, newUsername } = req.body;
-    const db = readDB();
+    const db = readData();
 
     if (!newUsername || newUsername.trim() === '') {
-        return res.status(400).json({ error: "Username cannot be empty." });
+        return res.status(400).json({ error: 'Username cannot be blank.' });
     }
     if (db.players[newUsername]) {
-        return res.status(400).json({ error: "Username already exists." });
+        return res.status(400).json({ error: 'This character name already exists.' });
     }
 
-    // Allocate progress metrics to the updated key string
     if (db.players[currentUsername]) {
         db.players[newUsername] = { ...db.players[currentUsername], username: newUsername };
         delete db.players[currentUsername];
     } else {
-        db.players[newUsername] = { username: newUsername, xp: 0, level: 1, claimedQuests: [] };
+        db.players[newUsername] = { username: newUsername, xp: 0, level: 1, completedQuestIds: [] };
     }
 
-    writeDB(db);
+    saveData(db);
     res.json({ success: true, newUsername });
 });
 
-// ROUTE: Process Progress and Claim Actions
+// 3. Quest Reward Progression Claim Endpoint
 app.post('/api/player/claim', (req, res) => {
     const { username, questId, xpReward } = req.body;
-    const db = readDB();
-
-    if (!db.players[username]) {
-        return res.status(404).json({ error: "Player profile not found." });
-    }
+    const db = readData();
 
     const player = db.players[username];
-    
-    if (player.claimedQuests.includes(questId)) {
-        return res.status(400).json({ error: "Quest already claimed." });
+    if (!player) return res.status(404).json({ error: 'Player context missing.' });
+
+    if (!player.completedQuestIds) player.completedQuestIds = [];
+    if (player.completedQuestIds.includes(questId)) {
+        return res.status(400).json({ error: 'Quest reward already claimed.' });
     }
 
-    // Mutate state records
-    player.claimedQuests.push(questId);
+    player.completedQuestIds.push(questId);
     player.xp += xpReward;
-    player.level = Math.floor(player.xp / 1000) + 1; // Basic leveling milestone formulation
+    player.level = Math.floor(player.xp / 1000) + 1; // 1000 XP threshold progression formula
 
-    writeDB(db);
+    saveData(db);
     res.json({ success: true, player });
 });
 
-app.listen(PORT, () => console.log(`QuestLine Backend engine listening on port ${PORT}`));
+app.listen(PORT, () => console.log(`QuestLine Engine Running on Port ${PORT}`));
