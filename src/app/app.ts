@@ -1,40 +1,45 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { QuestForm } from './quest-form/quest-form';
-import { QuestList } from './quest-list/quest-list';
-import { SignIn } from './sign-in/sign-in';
-import { SignUp } from './sign-up/sign-up';
 import { QuestService } from './quest-service';
+import { CharacterHudComponent } from './character-hud/character-hud.component';
+import { QuestFormComponent } from './quest-form/quest-form.component';
+import { QuestListComponent } from './quest-list/quest-list.component';
+import { SignInComponent } from './sign-in/sign-in.component';
+import { SignUpComponent } from './sign-up/sign-up.component';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [CommonModule, QuestForm, QuestList, SignIn, SignUp],
+  imports: [
+    CommonModule, 
+    CharacterHudComponent, 
+    QuestFormComponent, 
+    QuestListComponent, 
+    SignInComponent, 
+    SignUpComponent
+  ],
   templateUrl: './app.html',
-  styleUrl: './app.css'
+  styleUrls: ['./app.css']
 })
-export class App {
-  public questService = inject(QuestService);
-  
-  public currentAuthSubPage = signal<'signin' | 'signup'>('signin');
+export class AppComponent {
+  questService = inject(QuestService);
 
-  navigateToPage(page: 'signin' | 'signup') {
-    this.currentAuthSubPage.set(page);
+  onDeleteProfile() {
+    if (confirm('Are you completely sure you want to delete your profile?')) {
+      this.questService.deleteAccount();
+    }
   }
 
-  deleteHeroAccountDirectly() {
-    const check = confirm("WARNING: Are you sure you want to permanently delete your profile record from MongoDB? This action cannot be undone!");
-    if (!check) return;
+  onLogoutPlayer() {
+    this.questService.logout();
+  }
 
-    this.questService.deleteProfileRecord().subscribe({
-      next: () => {
-        alert("Account wiped successfully. Returning to login gateway.");
-        this.questService.logoutPlayer();
-      },
-      error: (err) => {
-        console.error('Account deletion failed:', err);
-        this.questService.logoutPlayer();
+  handleServiceError() {
+    return {
+      error: (err: any) => {
+        console.error('An internal application state error occured:', err);
+        this.questService.logout();
       }
-    });
+    };
   }
 }
