@@ -7,13 +7,14 @@ import { CharacterStats, QuestPayload } from '../quest.model';
 })
 export class QuestService {
   private http = inject(HttpClient);
-  private baseUrl = 'http://localhost:3000/api/stats';
+  
+  //to prevent Access Denied Routing logs
+  private authUrl = 'http://localhost:3000/api/auth';
+  private gameUrl = 'http://localhost:3000/api';
 
-  //  Authentication State Signals
   public isAuthenticated = signal<boolean>(false);
   public currentUserToken = signal<string | null>(null);
 
-  //  Core Game Engine Signals
   public stats = signal<CharacterStats>({
     name: 'Guest Player',
     level: 1,
@@ -24,29 +25,29 @@ export class QuestService {
     avatarSeed: 'QuestLineHero',
     completedChoresToday: {}
   });
+  
   public quests = signal<QuestPayload[]>([]);
   public gameAlertMessage = signal<string>('');
 
-  
   signInPlayer(credentials: any) {
-    this.http.post<{token: string, stats: CharacterStats}>(`${this.baseUrl}/auth/signin`, credentials)
+    this.http.post<{token: string, stats: CharacterStats}>(`${this.authUrl}/signin`, credentials)
       .subscribe({
         next: (res) => {
           this.currentUserToken.set(res.token);
           this.stats.set(res.stats);
           this.isAuthenticated.set(true);
-          this.gameAlertMessage.set('Authentication cleared! Loading system dashboard...');
+          this.gameAlertMessage.set('');
           this.loadActiveQuests();
         },
-        error: (err) => this.gameAlertMessage.set(err.error?.message || 'Access Denied.')
+        error: (err) => this.gameAlertMessage.set(err.error?.error || 'Access Denied.')
       });
   }
 
   signUpPlayer(accountData: any) {
-    this.http.post<{message: string}>(`${this.baseUrl}/auth/signup`, accountData)
+    this.http.post<{message: string}>(`${this.authUrl}/signup`, accountData)
       .subscribe({
         next: () => this.gameAlertMessage.set('Account generated! Ready for login.'),
-        error: (err) => this.gameAlertMessage.set(err.error?.message || 'Registration failed.')
+        error: (err) => this.gameAlertMessage.set(err.error?.error || 'Registration failed.')
       });
   }
 
@@ -54,66 +55,80 @@ export class QuestService {
     this.isAuthenticated.set(false);
     this.currentUserToken.set(null);
     this.quests.set([]);
+    this.gameAlertMessage.set('');
   }
-
 
   public loadActiveQuests() {
-    this.http.get<QuestPayload[]>(`${this.baseUrl}/quests`)
-      .subscribe(data => this.quests.set(data));
+    this.http.get<QuestPayload[]>(`${this.gameUrl}/quests`)
+      .subscribe({
+        next: (data) => this.quests.set(data),
+        error: (err) => console.error('Failed to load quests board:', err)
+      });
   }
-
 
   isChoreLocked(choreId: string): boolean {
     const activeStats = this.stats();
     if (!activeStats || !activeStats.completedChoresToday) return false;
-    return !!activeStats.completedChoresToday[choreId];
+    
+    if (activeStats.completedChoresToday instanceof Map) {
+      return activeStats.completedChoresToday.has(choreId);
+    }
+    return !!(activeStats.completedChoresToday as any)[choreId];
   }
-
 
   addQuest(choreId: string) {
-    this.http.post<QuestPayload[]>(`${this.baseUrl}/quests`, { choreId })
+    this.http.post<QuestPayload>(`${this.gameUrl}/quests`, { choreId })
       .subscribe({
-        next: (updatedQuests) => this.quests.set(updatedQuests),
-        error: (err) => console.error('Failed to add quest:', err)
+        next: (newQuest) => {
+          this.quests.update(currentList => [...currentList, newQuest]);
+          this.gameAlertMessage.set('');
+        },
+        error: (err) => this.gameAlertMessage.set('Failed to save adventure to board registry.')
       });
   }
 
-
-  completeQuest(questId: string) {
-    this.http.post<{quests: QuestPayload[], stats: CharacterStats}>(`${this.baseUrl}/quests/${questId}/complete`, {})
+  completeQuest(questId: string, difficulty: string) {
+    this.http.put<{quest: QuestPayload, stats: CharacterStats}>(`${this.gameUrl}/quests/${questId}/complete`, { difficulty })
       .subscribe({
         next: (res) => {
-          this.quests.set(res.quests);
           this.stats.set(res.stats);
+          this.loadActiveQuests();
         },
-        error: (err) => console.error('Failed to complete quest:', err)
+        error: (err) => this.gameAlertMessage.set(err.error?.error || 'Quest action blocked.')
       });
   }
 
- 
   deleteQuest(questId: string) {
-    this.http.delete<QuestPayload[]>(`${this.baseUrl}/quests/${questId}`)
+    this.http.delete(`${this.gameUrl}/quests/${questId}`)
       .subscribe({
-        next: (updatedQuests) => this.quests.set(updatedQuests),
-        error: (err) => console.error('Failed to clear quest:', err)
+        next: () => {
+          this.quests.update(list => list.filter(q => q.id !== questId));
+        }
       });
   }
 
+  exchangeGoldToPhp(goldAmount: number) {
+    this.http.post<CharacterStats>(`${this.gameUrl}/stats/exchange`, { goldAmount })
+      .subscribe({
+        next: (updatedStats) => {
+          this.stats.set(updatedStats);
+          this.gameAlertMessage.set('');
+        },
+        error: (err) => this.gameAlertMessage.set(err.error?.error || 'Exchange process error.')
+      });
+  }
 
   updateCharacterName(newName: string) {
-    this.http.put<CharacterStats>(`${this.baseUrl}/stats/name`, { name: newName.trim() })
-      .subscribe({
-        next: (updatedStats) => this.stats.set(updatedStats),
-        error: (err) => console.error('Error rewriting username:', err)
-      });
+    return this.http.put<CharacterStats>(`${this.gameUrl}/stats/name`, { name: newName }).pipe(
+      tap(updatedStats => {
+        this.stats.set(updatedStats);
+      })
+    );
   }
 
-  
-  exchangeGoldToPhp(exchangeAmount: number) {
-    this.http.post<CharacterStats>(`${this.baseUrl}/stats/exchange`, { amount: exchangeAmount })
-      .subscribe({
-        next: (updatedStats) => this.stats.set(updatedStats),
-        error: (err) => console.error('Error updating your wallet balance. Could not complete the Gold exchange right now.', err)
-      });
+  deleteProfileRecord() {
+    return this.http.delete(`${this.gameUrl}/stats/account`);
   }
 }
+
+import { tap } from 'rxjs/operators';
