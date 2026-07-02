@@ -16,6 +16,9 @@ export class QuestList {
   public questService = inject(QuestService);
   public exchangeAmount: number | null = null;
 
+  public isEditingName = false;
+  public newName = '';
+
   getChoreMetadata(choreId: string) {
     return CHORE_LIST.find((c) => c.id === choreId) || {
       id: 'unknown',
@@ -25,7 +28,40 @@ export class QuestList {
     };
   }
 
+  saveHeroName() {
+    if (!this.newName.trim()) return;
+    this.questService.updateCharacterName(this.newName.trim()).subscribe({
+      next: () => {
+        this.isEditingName = false;
+      }
+    });
+  }
+
+  deleteHeroAccount() {
+    const doubleCheck = confirm("Are you absolute sure you want to delete this profile? All saved records will be wiped!");
+    if (!doubleCheck) return;
+
+    this.questService.deleteProfileRecord().subscribe({
+      next: () => {
+        alert("Character record(s) wiped. Returning to Gateway login.");
+        this.questService.logoutPlayer();
+      }
+    });
+  }
+
   triggerGoldExchange() {
+    if (this.exchangeAmount !== null && this.exchangeAmount <= 0) {
+      this.questService.gameAlertMessage.set("Exchange quantity error: Input must be greater than zero!");
+      this.exchangeAmount = null;
+      return;
+    }
+
+    if (this.exchangeAmount && this.exchangeAmount > this.questService.stats().gold) {
+      this.questService.gameAlertMessage.set("Insufficient gold inside inventory bag!");
+      this.exchangeAmount = null;
+      return;
+    }
+
     if (this.exchangeAmount && this.exchangeAmount > 0) {
       this.questService.exchangeGoldToPhp(this.exchangeAmount);
       this.exchangeAmount = null; 
