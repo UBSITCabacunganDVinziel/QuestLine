@@ -17,7 +17,7 @@ import { QuestService } from '../quest-service';
       </div>
       <div class="bars">
         <p>✨ <strong>XP:</strong> {{ hero.xp }} / 100</p>
-        <p>🪙 <strong>Gold stash:</strong> {{ hero.gold }}g <small style="color: #aaa;">(Est. Value: ${(hero.gold * 0.05).toFixed(2)})</small></p>
+        <p>🪙 <strong>Gold stash:</strong> {{ hero.gold }}g <small style="color: #aaa;">(Est. Value: \${{ (hero.gold * 0.05).toFixed(2) }})</small></p>
       </div>
     </div>
   `
@@ -26,7 +26,7 @@ export class CharacterHud {
   state = inject(QuestService);
 
   deleteAccount() {
-    if (confirm("Are you sure you want to permanently erase this profile? All saved items disappear.")) {
+    if (confirm("Are you sure you want to permanently erase this profile? All progress disappears.")) {
       this.state.deleteAccount();
     }
   }
