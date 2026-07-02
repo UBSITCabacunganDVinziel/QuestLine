@@ -1,95 +1,226 @@
-.list-container {
-    background: #2a2a3a;
-    border: 4px solid #444;
-    padding: 20px;
-    border-radius: 8px;
-    color: #fff;
-    min-height: 300px;
-  }
-  
-  .list-container h3 {
-    margin-top: 0;
-    color: #ffb703;
-  }
-  
-  .empty-msg {
-    color: #888;
-    text-align: center;
-    margin-top: 40px;
-    font-style: italic;
-  }
-  
-  .quest-card {
-    background: #1a1a24;
-    border-left: 5px solid #06d6a0;
-    padding: 15px;
-    margin-bottom: 12px;
-    border-radius: 4px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-  
-  .quest-card.completed {
-    opacity: 0.5;
-    border-left-color: #555;
-    background: #222;
-  }
-  
-  .quest-card.completed h4 {
-    text-decoration: line-through;
-  }
-  
-  .title-row {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-  
-  .title-row h4 {
-    margin: 0;
-    font-size: 1.1rem;
-  }
-  
-  .badge {
-    font-size: 0.7rem;
-    padding: 2px 6px;
-    border-radius: 3px;
-    font-weight: bold;
-  }
-  
-  .badge.easy { background: #06d6a0; color: #000; }
-  .badge.medium { background: #ffb703; color: #000; }
-  .badge.hard { background: #ef476f; color: #fff; }
-  
-  .rewards-row {
-    font-size: 0.8rem;
-    color: #ffd700;
-    display: flex;
-    gap: 15px;
-    margin-top: 5px;
-  }
-  
-  .card-actions {
-    display: flex;
-    gap: 8px;
-  }
-  
-  .action-btn {
-    border: none;
-    padding: 8px 12px;
-    font-weight: bold;
-    cursor: pointer;
-    border-radius: 4px;
-    font-family: monospace;
-  }
-  
-  .complete-btn {
-    background: #06d6a0;
-    color: #000;
-  }
-  
-  .delete-btn {
-    background: #ef476f;
-    color: white;
-  }
+.dashboard-wrapper {
+  max-width: 1200px;
+  margin: 0 auto;
+  font-family: 'Courier New', monospace;
+}
+
+
+.status-banner {
+  background: #11111b;
+  border: 4px solid #313244;
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 25px;
+  color: #cdd6f4;
+}
+
+.banner-flex {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 15px;
+}
+
+
+.char-info h2 {
+  margin: 0;
+  color: #f9e2af;
+  font-size: 1.8rem;
+}
+
+.char-info p {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: bold;
+  color: #a6e3a1;
+}
+
+.xp-subtext {
+  font-size: 0.85rem;
+  color: #89b4fa;
+  font-weight: normal;
+  margin-left: 10px;
+}
+
+
+.name-edit-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 5px;
+}
+
+.btn-rename {
+  background: transparent;
+  border: none;
+  color: #a6e3a1;
+  cursor: pointer;
+  font-family: monospace;
+  font-size: 0.85rem;
+}
+
+.input-name {
+  background: #222;
+  border: 1px solid #555;
+  color: #fff;
+  padding: 4px;
+  border-radius: 4px;
+  font-family: monospace;
+  font-size: 1rem;
+}
+
+.btn-save, .btn-cancel {
+  border: none;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-weight: bold;
+  cursor: pointer;
+  color: #111;
+}
+
+.btn-save { background: #a6e3a1; }
+.btn-cancel { background: #f38ba8; }
+
+
+.economy-panel {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+  background: rgba(0, 0, 0, 0.3);
+  padding: 12px;
+  border-radius: 6px;
+}
+
+.stat-box p:first-child {
+  margin: 0 0 3px 0;
+  font-size: 0.85rem;
+  font-weight: bold;
+}
+
+.stat-box p:last-child {
+  margin: 0;
+  font-size: 1.2rem;
+  font-weight: bold;
+}
+
+.gold-title, .gold-value { color: #f9e2af; }
+.balance-title, .balance-value { color: #a6e3a1; }
+
+.divider-line {
+  border-left: 2px solid #45475a;
+  height: 35px;
+}
+
+
+.exchange-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.input-exchange {
+  width: 80px;
+  padding: 4px;
+  background: #222;
+  color: #fff;
+  border: 1px solid #555;
+  border-radius: 4px;
+  font-size: 0.8rem;
+}
+
+.btn-exchange {
+  background: #a6e3a1;
+  color: #111;
+  border: none;
+  padding: 4px;
+  font-weight: bold;
+  cursor: pointer;
+  border-radius: 4px;
+  font-size: 0.75rem;
+}
+
+
+.list-container h3 {
+  color: #cdd6f4;
+  border-bottom: 2px solid #45475a;
+  padding-bottom: 8px;
+  margin-top: 0;
+}
+
+.empty-msg {
+  color: #6c7086;
+  font-style: italic;
+}
+
+
+.quest-card {
+  border: 2px solid #45475a;
+  border-radius: 6px;
+  padding: 15px;
+  margin-bottom: 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 15px;
+  background: #1e1e2e;
+}
+
+.quest-card.completed {
+  background: #252535;
+}
+
+.card-details h4 {
+  margin: 0 0 5px 0;
+  color: #cdd6f4;
+}
+
+.card-details h4.strike {
+  text-decoration: line-through;
+}
+
+.card-details p {
+  margin: 0 0 5px 0;
+  font-size: 0.85rem;
+  color: #bac2de;
+}
+
+.badge-difficulty {
+  font-size: 0.8rem;
+  font-weight: bold;
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: #313244;
+  color: #f9e2af;
+}
+
+
+.card-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.btn-claim, .btn-delete {
+  border: none;
+  font-weight: bold;
+  border-radius: 4px;
+  cursor: pointer;
+  color: #111;
+}
+
+.btn-claim {
+  padding: 6px 12px;
+  background: #a6e3a1;
+}
+
+.btn-claim:disabled {
+  background: #585b70;
+  color: #1e1e2e;
+  cursor: not-allowed;
+}
+
+.btn-delete {
+  padding: 6px 10px;
+  background: #f38ba8;
+}
