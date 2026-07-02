@@ -12,27 +12,43 @@ export class QuestService {
   private authUrl = 'http://localhost:3000/api/auth';
   private gameUrl = 'http://localhost:3000/api';
 
-  public isAuthenticated = signal<boolean>(false);
-  public currentUserToken = signal<string | null>(null);
+  public isAuthenticated = signal<boolean>(localStorage.getItem('ql_auth') === 'true');
+  public currentUserToken = signal<string | null>(localStorage.getItem('ql_token'));
 
+  // Default values check localStorage to prevent reverting back to "Guest Player"
   public stats = signal<any>({
-    name: 'Guest Player',
+    name: localStorage.getItem('ql_name') || 'Guest Player',
     level: 1,
     currentXp: 0,
     nextLevelXp: 100,
     gold: 0,
     phpBalance: 0,
     avatarSeed: 'QuestLineHero',
-    completedChoresToday: {}
+    completedChoresToday: {},
+    userId: localStorage.getItem('ql_user_id') || null
   });
   
   public quests = signal<QuestPayload[]>([]);
   public gameAlertMessage = signal<string>('');
 
+  constructor() {
+    // Automatically re-fetch progress matrix records on boot if authenticated
+    const cachedUserId = localStorage.getItem('ql_user_id');
+    if (this.isAuthenticated() && cachedUserId) {
+      this.loadStatsFromServer(cachedUserId);
+      this.loadActiveQuests(cachedUserId);
+    }
+  }
+
   signInPlayer(credentials: any) {
     this.http.post<{success: boolean, token?: string, userId: string, username: string}>(`${this.authUrl}/signin`, credentials)
       .subscribe({
         next: (res) => {
+          localStorage.setItem('ql_auth', 'true');
+          localStorage.setItem('ql_token', res.token || 'mock-token');
+          localStorage.setItem('ql_user_id', res.userId);
+          localStorage.setItem('ql_name', res.username);
+
           this.currentUserToken.set(res.token || 'mock-token');
           this.isAuthenticated.set(true);
           this.gameAlertMessage.set('');
@@ -53,6 +69,7 @@ export class QuestService {
   }
 
   logoutPlayer() {
+    localStorage.clear();
     this.isAuthenticated.set(false);
     this.currentUserToken.set(null);
     this.quests.set([]);
@@ -75,6 +92,7 @@ export class QuestService {
       .subscribe({
         next: (data) => {
           const completeStatsPayload = { ...data, userId: userId };
+          localStorage.setItem('ql_name', data.name);
           this.stats.set(completeStatsPayload);
         },
         error: (err) => console.error('Failed to load player statistics matrix data records:', err)
@@ -162,6 +180,7 @@ export class QuestService {
     return this.http.put<CharacterStats>(`${this.gameUrl}/stats/name`, { userId, name: newName }).pipe(
       tap(updatedStats => {
         const updatedStatsPayload = { ...updatedStats, userId: userId };
+        localStorage.setItem('ql_name', newName);
         this.stats.set(updatedStatsPayload);
       })
     );
