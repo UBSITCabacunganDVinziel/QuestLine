@@ -1,6 +1,7 @@
 import { Injectable, signal, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { CharacterStats, QuestPayload } from '../quest.model';
+import { tap } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root'
@@ -8,7 +9,6 @@ import { CharacterStats, QuestPayload } from '../quest.model';
 export class QuestService {
   private http = inject(HttpClient);
   
-  //to prevent Access Denied Routing logs
   private authUrl = 'http://localhost:3000/api/auth';
   private gameUrl = 'http://localhost:3000/api';
 
@@ -16,7 +16,7 @@ export class QuestService {
   public currentUserToken = signal<string | null>(null);
 
   public stats = signal<CharacterStats>({
-    name: 'Guest Player',
+    name: localStorage.getItem('questline_cached_username') || 'Guest Player',
     level: 1,
     currentXp: 0,
     nextLevelXp: 100,
@@ -34,7 +34,16 @@ export class QuestService {
       .subscribe({
         next: (res) => {
           this.currentUserToken.set(res.token);
-          this.stats.set(res.stats);
+          
+          const updatedProfileStats = { ...res.stats };
+          const customCachedName = localStorage.getItem('questline_cached_username');
+          if (customCachedName) {
+            updatedProfileStats.name = customCachedName;
+          } else {
+            localStorage.setItem('questline_cached_username', res.stats.name);
+          }
+
+          this.stats.set(updatedProfileStats);
           this.isAuthenticated.set(true);
           this.gameAlertMessage.set('');
           this.loadActiveQuests();
@@ -55,6 +64,14 @@ export class QuestService {
     this.isAuthenticated.set(false);
     this.currentUserToken.set(null);
     this.quests.set([]);
+    
+    this.stats.update(currentStats => ({
+      ...currentStats,
+      name: localStorage.getItem('questline_cached_username') || 'Guest Player',
+      gold: 0,
+      level: 1,
+      phpBalance: 0
+    }));
     this.gameAlertMessage.set('');
   }
 
@@ -91,8 +108,13 @@ export class QuestService {
     this.http.put<{quest: QuestPayload, stats: CharacterStats}>(`${this.gameUrl}/quests/${questId}/complete`, { difficulty })
       .subscribe({
         next: (res) => {
-          this.stats.set(res.stats);
-          this.loadActiveQuests();
+          const synchronizedStats = { ...res.stats };
+          const customCachedName = localStorage.getItem('questline_cached_username');
+          if (customCachedName) {
+            synchronizedStats.name = customCachedName;
+          }
+          this.stats.set(synchronizedStats);
+          this.loadActiveQuests(); 
         },
         error: (err) => this.gameAlertMessage.set(err.error?.error || 'Quest action blocked.')
       });
@@ -111,7 +133,12 @@ export class QuestService {
     this.http.post<CharacterStats>(`${this.gameUrl}/stats/exchange`, { goldAmount })
       .subscribe({
         next: (updatedStats) => {
-          this.stats.set(updatedStats);
+          const synchronizedStats = { ...updatedStats };
+          const customCachedName = localStorage.getItem('questline_cached_username');
+          if (customCachedName) {
+            synchronizedStats.name = customCachedName;
+          }
+          this.stats.set(synchronizedStats);
           this.gameAlertMessage.set('');
         },
         error: (err) => this.gameAlertMessage.set(err.error?.error || 'Exchange process error.')
@@ -121,14 +148,16 @@ export class QuestService {
   updateCharacterName(newName: string) {
     return this.http.put<CharacterStats>(`${this.gameUrl}/stats/name`, { name: newName }).pipe(
       tap(updatedStats => {
-        this.stats.set(updatedStats);
+        localStorage.setItem('questline_cached_username', newName);
+        
+        const synchronizedStats = { ...updatedStats, name: newName };
+        this.stats.set(synchronizedStats);
       })
     );
   }
 
   deleteProfileRecord() {
+    localStorage.removeItem('questline_cached_username');
     return this.http.delete(`${this.gameUrl}/stats/account`);
   }
 }
-
-import { tap } from 'rxjs/operators';
