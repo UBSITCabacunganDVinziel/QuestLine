@@ -26,7 +26,6 @@ export class QuestList {
     };
   }
 
-  // FIXED INTERFACE LINK: Uses the correct metadata mapping parameters
   onClaimQuest(questId: string, choreId: string) {
     const metadata = this.getChoreMetadata(choreId);
     const difficultyKey = metadata.difficulty || 'EASY';
@@ -38,47 +37,44 @@ export class QuestList {
     this.isEditingName = true;
   }
 
+  // FIXED INTERFACE LINK: Subscribes explicitly to trigger the backend PUT query pipeline execution
   saveHeroName(updatedName: string) {
     if (!updatedName.trim()) return;
     this.questService.updateCharacterName(updatedName.trim()).subscribe({
       next: () => {
         this.isEditingName = false;
+      },
+      error: (err) => {
+        console.error('Character renaming network transmission failure:', err);
+        this.isEditingName = false;
       }
     });
+  }
+
+  // NEW INTERFACE BINDING: Implements the gold currency wallet transaction pipeline
+  triggerGoldExchange(inputElement: HTMLInputElement) {
+    const amount = parseInt(inputElement.value, 10);
+    if (isNaN(amount) || amount <= 0) {
+      alert('Please state a valid positive value of gold coins.');
+      return;
+    }
+    if (amount > this.questService.stats().gold) {
+      alert('Insufficient gold remaining inside character wallet storage records.');
+      return;
+    }
+    this.questService.exchangeGoldToPhp(amount);
+    inputElement.value = '';
   }
 
   deleteHeroAccount() {
-    const doubleCheck = confirm("Are you absolute sure you want to delete this profile? All saved data records inside MongoDB will be wiped!");
-    if (!doubleCheck) return;
-
-    this.questService.deleteProfileRecord().subscribe({
-      next: () => {
-        alert("Character data wiped. Returning to Gateway login.");
-        this.questService.logoutPlayer();
-      }
-    });
-  }
-
-  triggerGoldExchange(inputElement: HTMLInputElement) {
-    const amountValue = inputElement.value ? parseInt(inputElement.value) : 0;
-
-    if (amountValue <= 0) {
-      this.questService.gameAlertMessage.set("Exchange quantity error: Input must be greater than zero!");
-      inputElement.value = '';
-      return;
+    const doubleCheck = confirm("Are you absolutely sure you want to delete this profile? All saved data records inside MongoDB will be lost.");
+    if (doubleCheck) {
+      this.questService.deleteProfileRecord().subscribe({
+        next: () => {
+          alert('Profile wiped.');
+          this.questService.logoutPlayer();
+        }
+      });
     }
-
-    if (amountValue > this.questService.stats().gold) {
-      this.questService.gameAlertMessage.set("Insufficient gold inside inventory bag!");
-      inputElement.value = '';
-      return;
-    }
-
-    this.questService.exchangeGoldToPhp(amountValue);
-    inputElement.value = ''; 
-  }
-
-  trackById(index: number, item: QuestPayload) {
-    return item.id;
   }
 }
