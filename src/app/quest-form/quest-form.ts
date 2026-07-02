@@ -13,7 +13,7 @@ import { Quest } from '../quest.model';
       <h3>📖 Universal Starter Quests Board</h3>
       <div class="preset-grid">
         <div class="preset-card" *ngFor="let p of presets">
-          <strong>{{p.title}}</strong><br><small>{{p.description}}</small>
+          <strong>{{ p['title'] }}</strong><br><small>{{ p['description'] }}</small>
           <button (click)="addPreset(p)">Add to Tracker</button>
         </div>
       </div>
@@ -45,7 +45,6 @@ export class QuestForm {
   customTitle = ''; customDesc = ''; customTime = ''; customDuration?: number;
   customCategory: Quest['category'] = 'Vitality';
 
-  // Global cross-demographic preset quests applied across users
   presets: Omit<Quest, 'id' | 'isCompleted'>[] = [
     { title: 'Hydration Challenge', description: 'Consume 2L of water throughout today.', category: 'Vitality', xpReward: 25, goldReward: 5 },
     { title: 'Clear the Sanctuary', description: 'Dedicate time to clean and organize your immediate workspace or room.', category: 'Guild Chores', xpReward: 35, goldReward: 10 },
@@ -56,9 +55,9 @@ export class QuestForm {
 
   addPreset(preset: any) {
     this.state.addCustomQuest({
-      title: preset.title,
-      description: preset.description,
-      category: preset.category,
+      title: preset['title'],
+      description: preset['description'],
+      category: preset['category'],
       startTime: '08:00',
       durationMinutes: 30
     });
