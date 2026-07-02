@@ -1,1 +1,13 @@
-/* You can add global styles to this file, and also import other style files */
+body { background-color: #1a1a1a; color: #f0f0f0; }
+input, select { padding: 8px; margin: 5px 0; background: #2b2b2b; color: #fff; border: 1px solid #d4af37; border-radius: 4px; width: 100%; box-sizing: border-box; }
+button { background: #d4af37; color: #1a1a1a; font-weight: bold; border: none; padding: 10px; cursor: pointer; border-radius: 4px; margin-top: 5px; }
+button:hover { background: #f3c623; }
+.quest-card { border: 1px solid #444; padding: 15px; margin: 10px 0; border-radius: 6px; display: flex; justify-content: space-between; align-items: center; }
+.active { background: #222; border-left: 5px solid #d4af37; }
+.locked { background: #151515; opacity: 0.6; border-left: 5px solid #ff5555; }
+.badge { background: #444; font-size: 0.75em; padding: 3px 6px; border-radius: 3px; }
+.btn-danger { background: #c0392b; color: white; margin-left: 5px;}
+.btn-warn { background: #e67e22; color: white; }
+.auth-box { border: 1px dashed #666; padding: 15px; border-radius: 5px; background: #222; width: 300px; }
+.preset-grid { display: grid; grid-template-columns: 1fr; gap: 10px; }
+.preset-card { background: #2a2a2a; padding: 10px; border-radius: 4px; border: 1px solid #333; }
