@@ -26,6 +26,7 @@ export class QuestList {
     };
   }
 
+  // FIXED INTERFACE LINK: Uses the correct metadata mapping parameters
   onClaimQuest(questId: string, choreId: string) {
     const metadata = this.getChoreMetadata(choreId);
     const difficultyKey = metadata.difficulty || 'EASY';
@@ -33,7 +34,7 @@ export class QuestList {
   }
 
   startEditingName() {
-    this.newName = this.questService.stats().name;
+    this.newName = this.questService.stats().name || '';
     this.isEditingName = true;
   }
 
@@ -47,7 +48,7 @@ export class QuestList {
   }
 
   deleteHeroAccount() {
-    const doubleCheck = confirm("Are you absolutely sure you want to delete this profile? All saved data records inside MongoDB will be wiped!");
+    const doubleCheck = confirm("Are you absolute sure you want to delete this profile? All saved data records inside MongoDB will be wiped!");
     if (!doubleCheck) return;
 
     this.questService.deleteProfileRecord().subscribe({
