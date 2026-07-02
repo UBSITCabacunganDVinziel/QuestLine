@@ -1,80 +1,44 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { QuestService } from '../quest-service'; 
-import { QuestPayload } from '../../quest.model';    
-import { CHORE_LIST } from '../../quest.model';      
+import { QuestService } from '../quest-service';
 
 @Component({
   selector: 'app-quest-list',
   standalone: true,
   imports: [CommonModule],
-  templateUrl: './quest-list.html',
-  styleUrl: './quest-list.css'
+  template: `
+    <div class="list-container" *ngIf="state.currentUser()">
+      <!-- ACTIVE TASKS LIST -->
+      <h3>⚔️ Ongoing Quest Targets</h3>
+      <div class="quest-card active" *ngFor="let q of activeQuests()">
+        <div>
+          <span class="badge">{{ q.category }}</span>
+          <h4>{{ q.title }}</h4>
+          <p>{{ q.description }}</p>
+          <small *ngIf="q.startTime">⏰ Starts: {{ q.startTime }} </small>
+          <small *ngIf="q.durationMinutes">⏳ Limit: {{ q.durationMinutes }} mins</small>
+        </div>
+        <button class="complete-btn" (click)="state.completeQuest(q.id)">Complete (+{{ q.goldReward }}g)</button>
+      </div>
+      <p *ngIf="activeQuests().length === 0" style="color: #777;">No active targets found on the guild boards.</p>
+
+      <!-- FINISHED & LOCKED BOARD VIEW -->
+      <h3 style="margin-top: 40px; color: #ff5555;">🔒 Finished & Locked History Board</h3>
+      <div class="quest-card locked" *ngFor="let q of lockedQuests()">
+        <div>
+          <h4><del>{{ q.title }}</del></h4>
+          <p style="color: #666;">Earned +{{ q.xpReward }} XP & +{{ q.goldReward }} Gold</p>
+        </div>
+        <span class="lock-timer">🔒 Locked until midnight</span>
+      </div>
+      <p *ngIf="lockedQuests().length === 0" style="color: #777;">No completed items locked out for today yet.</p>
+    </div>
+  `
 })
-export class QuestList {
-  public questService = inject(QuestService);
+export class QuestListComponent {
+  state = inject(QuestService);
 
-  public isEditingName = false;
-  public newName = '';
-
-  getChoreMetadata(choreId: string) {
-    return CHORE_LIST.find((c) => c.id === choreId) || {
-      id: 'unknown',
-      name: 'Unknown Quest Assignment',
-      category: 'Daily Maintenance' as const,
-      difficulty: 'EASY' as const
-    };
-  }
-
-  onClaimQuest(questId: string, choreId: string) {
-    const metadata = this.getChoreMetadata(choreId);
-    const difficultyKey = metadata.difficulty || 'EASY';
-    this.questService.completeQuest(questId, difficultyKey);
-  }
-
-  startEditingName() {
-    this.newName = this.questService.stats().name || '';
-    this.isEditingName = true;
-  }
-
-  // FIXED INTERFACE LINK: Subscribes explicitly to trigger the backend PUT query pipeline execution
-  saveHeroName(updatedName: string) {
-    if (!updatedName.trim()) return;
-    this.questService.updateCharacterName(updatedName.trim()).subscribe({
-      next: () => {
-        this.isEditingName = false;
-      },
-      error: (err) => {
-        console.error('Character renaming network transmission failure:', err);
-        this.isEditingName = false;
-      }
-    });
-  }
-
-  // NEW INTERFACE BINDING: Implements the gold currency wallet transaction pipeline
-  triggerGoldExchange(inputElement: HTMLInputElement) {
-    const amount = parseInt(inputElement.value, 10);
-    if (isNaN(amount) || amount <= 0) {
-      alert('Please state a valid positive value of gold coins.');
-      return;
-    }
-    if (amount > this.questService.stats().gold) {
-      alert('Insufficient gold remaining inside character wallet storage records.');
-      return;
-    }
-    this.questService.exchangeGoldToPhp(amount);
-    inputElement.value = '';
-  }
-
-  deleteHeroAccount() {
-    const doubleCheck = confirm("Are you absolutely sure you want to delete this profile? All saved data records inside MongoDB will be lost.");
-    if (doubleCheck) {
-      this.questService.deleteProfileRecord().subscribe({
-        next: () => {
-          alert('Profile wiped.');
-          this.questService.logoutPlayer();
-        }
-      });
-    }
-  }
+  // Deriving state reactivity using Computed properties
+  activeQuests = computed(() => this.state.userQuests().filter(q => !q.isCompleted));
+  lockedQuests = computed(() => this.state.userQuests().filter(q => q.isCompleted));
 }
