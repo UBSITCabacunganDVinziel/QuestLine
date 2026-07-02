@@ -49,4 +49,8 @@ export class QuestForm {
       (this.questService as any).loadQuests();
     }
   }
+
+  postQuestDirectly() {
+    this.onSubmit();
+  }
 }
