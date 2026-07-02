@@ -91,7 +91,19 @@ app.delete('/api/quests/:id', async (req, res) => {
 
 app.put('/api/stats/name', async (req, res) => {
   try {
-    const stats = await Stats.findOneAndUpdate({}, { name: req.body.name }, { new: true });
+    const { userId, name } = req.body;
+
+    if (!userId) {
+      return res.status(400).json({ error: "Missing account reference identifier configuration parameters." });
+    }
+
+    const stats = await Stats.findOneAndUpdate(
+      { userId: userId }, 
+      { name: name }, 
+      { new: true }
+    );
+
+    if (!stats) return res.status(404).json({ error: "Character profile entry data space not found." });
     res.json(stats);
   } catch (err) {
     res.status(400).json({ error: err.message });
