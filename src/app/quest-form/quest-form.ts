@@ -2,7 +2,7 @@ import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { QuestService } from '../quest-service';
-import { Quest } from '../quest.model';
+import { Quest } from '../../quest.model';
 
 interface PresetCategory {
   categoryName: string;
