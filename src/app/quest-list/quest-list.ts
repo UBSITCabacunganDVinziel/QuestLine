@@ -26,6 +26,12 @@ export class QuestList {
     };
   }
 
+  onClaimQuest(questId: string, choreId: string) {
+    const metadata = this.getChoreMetadata(choreId);
+    const difficultyKey = metadata.difficulty || 'EASY';
+    this.questService.completeQuest(questId, difficultyKey);
+  }
+
   startEditingName() {
     this.newName = this.questService.stats().name;
     this.isEditingName = true;
