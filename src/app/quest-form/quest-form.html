@@ -23,7 +23,7 @@
       </optgroup>
 
       <optgroup label="🧠 Deep Focus">
-        @for (chore of getChoresByCategory('Deep Focus'); track chore.id) {
+        @for (chore of getChoresByCategory('Deep Focus & Admin'); track chore.id) {
           <option [value]="chore.id" [disabled]="questService.isChoreLocked(chore.id)">
             {{ chore.name }} {{ questService.isChoreLocked(chore.id) ? '⏳ (Cooldown Active)' : '' }}
           </option>
