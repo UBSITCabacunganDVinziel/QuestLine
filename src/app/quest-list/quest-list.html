@@ -1,7 +1,16 @@
+<!-- Main QuestLine Dashboard Container Layout -->
 <div style="max-width: 1200px; margin: 0 auto; font-family: 'Courier New', monospace;">
   
-  <header style="text-align: center; margin-bottom: 25px; padding: 10px; border-bottom: 2px dashed #313244;">
-    <h1 style="color: #a6e3a1; margin: 0; font-size: 2.2rem; letter-spacing: 3px; font-weight: bold;">⚔️ QUESTLINE ⚔️</h1>
+  <!-- FIXED UTILITY BAR: Centers QuestLine title and groups account management buttons together -->
+  <header style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px dashed #313244; padding: 15px 0; margin-bottom: 25px;">
+    
+    <!-- Empty left placeholder to perfectly center the title across the screen space -->
+    <div style="width: 250px;"></div>
+
+    <!-- Centered App Header Title Branding Section -->
+    <h1 style="color: #a6e3a1; margin: 0; font-size: 2.2rem; letter-spacing: 3px; font-weight: bold; text-align: center;">
+      ⚔️ QUESTLINE ⚔️
+    </h1>
   </header>
 
   <section class="status-banner" style="background: #11111b; border: 4px solid #313244; border-radius: 8px; padding: 20px; margin-bottom: 25px; color: #cdd6f4;">
@@ -10,6 +19,7 @@
       <div>
         <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 5px;">
           @if (!isEditingName) {
+            <!-- LINKED REPAIR: Uses the exact, reactive login session username signal parameter directly -->
             <h2 style="margin: 0; color: #f9e2af; font-size: 1.8rem;">🛡️ {{ questService.stats().name }}</h2>
             <button (click)="startEditingName()" style="background: transparent; border: none; color: #a6e3a1; cursor: pointer; font-family: monospace; font-size: 0.85rem;">[Rename]</button>
           } @else {
@@ -57,12 +67,6 @@
           </button>
         </div>
       </div>
-    </div>
-
-    <div style="text-align: right; margin-top: 15px; padding-top: 10px; border-top: 1px dashed #313244;">
-      <button (click)="deleteHeroAccount()" style="background: transparent; border: none; color: #f38ba8; cursor: pointer; font-size: 0.8rem; text-decoration: underline;">
-        ⚠️ Delete Account Record
-      </button>
     </div>
   </section>
 

@@ -9,7 +9,7 @@ import { tap } from 'rxjs/operators';
 export class QuestService {
   private http = inject(HttpClient);
   
-  private authUrl = 'http://localhost:3000/api/auth';
+  private authUrl = 'http://localhost:3000/api/stats';
   private gameUrl = 'http://localhost:3000/api';
 
   public isAuthenticated = signal<boolean>(false);
