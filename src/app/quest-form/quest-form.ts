@@ -39,7 +39,7 @@ import { Quest } from '../quest.model';
     </div>
   `
 })
-export class QuestFormComponent {
+export class QuestForm {
   state = inject(QuestService);
   
   customTitle = ''; customDesc = ''; customTime = ''; customDuration?: number;

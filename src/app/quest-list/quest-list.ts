@@ -35,7 +35,7 @@ import { QuestService } from '../quest-service';
     </div>
   `
 })
-export class QuestListComponent {
+export class QuestList {
   state = inject(QuestService);
 
   // Deriving state reactivity using Computed properties

@@ -22,7 +22,7 @@ import { QuestService } from '../quest-service';
     </div>
   `
 })
-export class CharacterHudComponent {
+export class CharacterHud {
   state = inject(QuestService);
 
   deleteAccount() {

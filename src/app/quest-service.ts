@@ -1,4 +1,4 @@
-import { Injectable, signal, computed } from '@angular/core';
+import { Injectable, signal } from '@angular/core';
 import { Quest, UserAccount } from './quest.model';
 
 @Injectable({
@@ -80,8 +80,8 @@ export class QuestService {
     const fullQuest: Quest = {
       ...quest,
       id: crypto.randomUUID(),
-      xpReward: Math.floor(Math.random() * 30) + 20, 
-      goldReward: Math.floor(Math.random() * 15) + 5, 
+      xpReward: Math.floor(Math.random() * 30) + 20,
+      goldReward: Math.floor(Math.random() * 15) + 5,
       isCompleted: false
     };
 

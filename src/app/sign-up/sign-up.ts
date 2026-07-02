@@ -17,7 +17,7 @@ import { QuestService } from '../quest-service';
     </div>
   `
 })
-export class SignUpComponent {
+export class SignUp {
   authService = inject(QuestService);
   username = ''; password = ''; msg = '';
 
