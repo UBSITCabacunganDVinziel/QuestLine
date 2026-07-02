@@ -29,11 +29,12 @@ interface PresetCategory {
               <small>{{ p['description'] }}</small>
             </div>
             
+            <!-- Completely disabled if the task exists in active OR finished boards -->
             <button 
-              [disabled]="isQuestActive(p['title'])" 
+              [disabled]="isQuestEnlistedToday(p['title'])" 
               class="accept-btn"
               (click)="addPreset(p)">
-              {{ isQuestActive(p['title']) ? '🛡️ Active' : 'Accept' }}
+              {{ isQuestEnlistedToday(p['title']) ? '🔒 Completed/Active' : 'Accept' }}
             </button>
           </div>
         </div>
@@ -59,8 +60,8 @@ interface PresetCategory {
         <label>Duration: <input type="number" [(ngModel)]="customDuration" placeholder="Mins" /></label>
       </div>
       
-      <button class="deploy-btn" [disabled]="isQuestActive(customTitle)" (click)="createCustom()">
-        {{ isQuestActive(customTitle) ? '🔒 Quest Already Enlisted' : 'Deploy Active Quest' }}
+      <button class="deploy-btn" [disabled]="isQuestEnlistedToday(customTitle)" (click)="createCustom()">
+        {{ isQuestEnlistedToday(customTitle) ? '🔒 Quest Already Completed/Enlisted Today' : 'Deploy Active Quest' }}
       </button>
     </div>
   `
@@ -101,9 +102,10 @@ export class QuestForm {
     }
   ];
 
-  isQuestActive(title: string): boolean {
+  // FIXED METHOD: Looks for title existence across ALL entries regardless of isCompleted status
+  isQuestEnlistedToday(title: string): boolean {
     if (!title) return false;
-    return this.state.userQuests().some(q => q.title.toLowerCase() === title.toLowerCase() && !q.isCompleted);
+    return this.state.userQuests().some(q => q.title.toLowerCase() === title.toLowerCase());
   }
 
   addPreset(preset: any) {
