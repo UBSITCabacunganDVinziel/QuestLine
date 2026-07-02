@@ -1,5 +1,5 @@
 import { Injectable, signal } from '@angular/core';
-import { Quest, UserAccount } from './quest.model';
+import { Quest, UserAccount } from '../quest.model';
 
 @Injectable({
   providedIn: 'root'
