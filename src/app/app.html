@@ -1,34 +1,18 @@
-@if (questService.isAuthenticated()) {
+<main style="max-width: 900px; margin: 0 auto; padding: 20px; font-family: sans-serif;">
+  <h1 style="text-align: center; color: #d4af37;">⚔️ QuestLine ⚔️</h1>
   
-  <!-- UNIFIED ROW HEADER: Houses branding and controls on the exact same row line -->
-  <header style="max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; border-bottom: 2px dashed #313244; font-family: 'Courier New', monospace;">
-    
-    <div style="width: 280px;"></div>
+  <!-- Registration and Login Interface Wrapper Controls -->
+  <div style="display: flex; gap: 20px; justify-content: center; margin-bottom: 25px;">
+    <app-sign-in></app-sign-in>
+    <app-sign-up></app-sign-up>
+  </div>
 
-    <h1 style="color: #a6e3a1; margin: 0; font-size: 2rem; letter-spacing: 3px; font-weight: bold; text-align: center; flex-grow: 1;">
-      ⚔️ QUESTLINE ⚔️
-    </h1>
+  <!-- Dynamic Account HUD Tracking -->
+  <app-character-hud></app-character-hud>
 
-    <div style="display: flex; gap: 10px; width: 280px; justify-content: flex-end;">
-      <button (click)="deleteHeroAccountDirectly()" style="background: transparent; border: 1px solid #f38ba8; color: #f38ba8; padding: 6px 12px; font-family: monospace; font-weight: bold; border-radius: 4px; cursor: pointer; font-size: 0.8rem; white-space: nowrap;">
-        ⚠️ DELETE ACCOUNT
-      </button>
-
-      <button (click)="questService.logoutPlayer()" style="background: #f38ba8; color: #111; border: none; padding: 6px 12px; font-family: monospace; font-weight: bold; border-radius: 4px; cursor: pointer; font-size: 0.8rem; white-space: nowrap;">
-        LOGOUT
-      </button>
-    </div>
-  </header>
-
-  <app-quest-form></app-quest-form>
-  <app-quest-list></app-quest-list>
-
-} @else {
-  
-  @if (currentAuthSubPage() === 'signin') {
-    <app-sign-in (onSwitchToSignUp)="navigateToPage('signup')"></app-sign-in>
-  } @else {
-    <app-sign-up (onSwitchToSignIn)="navigateToPage('signin')"></app-sign-up>
-  }
-
-}
+  <!-- Core Content Working Columns -->
+  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-top: 20px;">
+    <app-quest-form></app-quest-form>
+    <app-quest-list></app-quest-list>
+  </div>
+</main>
